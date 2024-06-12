@@ -12,7 +12,7 @@ from string_synonym import StringSynonym
 #Encoding
 ENCODING = "uft-8"
 '''
-Vendor fertig stellen (known branches anlegen)
+#TODO Liste
 Produktname (überarbeiten)
 Version (sehr mager)
 '''
@@ -51,14 +51,13 @@ def clean_vendor(df: pd.DataFrame):
     # replace doubles spaces
     df.vendor_precl.replace(r'\s+'," ", regex=True, inplace=True)
     df.vendor_precl = df.vendor_precl.str.strip()
-    ####################################
-    # delete unneccsary name fragments #
-    ####################################
+    ########################################
+    ### delete unneccsary name fragments ###
+    ########################################
     df["vendor_del"] = df.vendor_precl.copy()
     pre_delete = read_json_file(find_file('normalisation.json')
                                 )['cleaning']['pre_delete_vendor']
     df["vendor_del"] = df.vendor_del.replace(pre_delete, ' ', regex=True)
-    # TODO missing entries?
     ####################
     ### Postcleaning ###
     ####################
@@ -73,7 +72,6 @@ def clean_vendor(df: pd.DataFrame):
     df.vendor_poscl.replace(r'[\/\\]', '', regex=True, inplace=True)
     # remove copyright
     df.vendor_poscl.replace(r'(?i)\(c\)|©', '', regex=True, inplace=True)
-
     ###############################
     ### use vendor Synonym list ###
     ###############################
@@ -81,7 +79,6 @@ def clean_vendor(df: pd.DataFrame):
     df["vendor_mod_Syn"] = df["vendor_poscl"].apply(lambda x: syn.normalize(x, 'vendor'))
     # no change necessary
     df.loc[df.vendor_mod_Syn.str.lower() == df.vendor.str.lower(), 'vendor_mod_Syn'] = ''
-
     # check the synonym with original entry
     df = df.assign(ind=range(len(df)))
     maker = 0
@@ -116,13 +113,11 @@ def clean_vendor(df: pd.DataFrame):
                     maker = 0
                     checker = True
                 df.loc[df['ind']==index, 'vendor_syn'] = word
-
-    #Check full completed?
+    #Check if fully completed?
     if (~(df.vendor_syn == '')).sum() < (~(df.vendor_mod_Syn == '')).sum():
         number = {(~(df.vendor_mod_Syn == '')).sum() - (~(df.vendor_syn == '')).sum()}
         print(f'There are {number} Synonyms where the check failed.')
     df.drop(['ind', 'vendor_mod_Syn'], axis=1, inplace=True)
-    # TODO spellchecker
     df = spellcheck(df)
 
     ###################
@@ -137,15 +132,12 @@ def clean_vendor(df: pd.DataFrame):
     df_mod_col = [col for col in df.columns if '_fin' in col]
     df_mod_col.insert(0,'vendor')
     df[df_mod_col].to_parquet('log_vendor_<time>_<runID>.parquet')
-
     # generate final column modified
     df['vendor_modified'] = ''
     df.vendor_modified.where(~(df.vendor_modified == '') , df.vendor_syn_fin, inplace=True)
     df.vendor_modified.where(~(df.vendor_modified == '') , df.vendor_poscl, inplace=True)
-
-    # del emtpy entries
-    
-    if len(df.groupby(df.index)['vendor_modified'].apply(list).reset_index(drop=True)) != len(df_load.vendor.unique()):
+    if len(df.groupby(df.index)['vendor_modified'].apply(list)
+           .reset_index(drop=True))!= len(df_load.vendor.unique()):
         print('WARNING: colum modified as not as many entries as the original one! ')
     df_fin = pd.DataFrame()
     df_fin['vendor_modified'] = df.groupby(df.index)['vendor_modified'].apply(list).reset_index(
@@ -154,12 +146,9 @@ def clean_vendor(df: pd.DataFrame):
     df_fin.vendor_modified.replace(r'(, ){2}', ', ', regex=True, inplace=True)
     df_fin.vendor_modified.replace(r'\b,\s?$', '', regex=True, inplace=True)
     df_fin.index = df_load.vendor.unique()
-    # update inital DataFrame
+    # Update inital DataFrame
     df_load.vendor_modified = df_load['vendor'].map(df_fin['vendor_modified'])
-    # TODO use stocklist as testbed
-    # TODO use more CASF data
     return df_load
-
 
 def spellcheck(df :pd.DataFrame):
     '''Uses the spellchecker function'''
@@ -168,7 +157,10 @@ def spellcheck(df :pd.DataFrame):
 
 # helperfunctions
 def remove_special_characters(text):
-    #TODO include into product cleaning function
+    '''The remove_special_characters function is used to clean up the product names. 
+    As serial numbers are often separated by a hyphen (e.g. Simatic 7SR1205-2JA87-1CAO/EE), 
+    the structure is retained in order to be able to make a better statement about the equality 
+    of two product strings later during matching  with analyze_structure.'''
     # remove / and \ from strings and replace it with a space
     text = re.sub(r'[\/\\]', ' ', text)
     # remove copyright
@@ -195,19 +187,6 @@ def remove_special_characters(text):
         return None
     else:
         return cleaned_text
-
-def remove_letters_from_string(text):
-    # TODO Wensky: Zweck/Grund für dieser Funktion?
-    cleaned_text = re.sub(r'[^0-9.]', '', text)
-    if cleaned_text and cleaned_text.endswith('.'):
-        cleaned_text = cleaned_text[:-1]  # Remove "dot"
-    return cleaned_text or None
-
-
-
-
-# function to clean vendor and check for matches in known_branches.json
-
 
 # function to clean product_name and product_family, check for matches in known_branches.json
 def clean_product_column_and_extract_information(df, column_name, regex_dict):
@@ -335,3 +314,13 @@ def clean_dataframe_version_range(df):
     df['product_version_range_modified'] = df['product_version_range'].copy()
     # more cleaning here
     return df
+
+def remove_letters_from_string(text):
+    '''The purpose is to extract only the numerical parts of the version number.
+     As the matching later refers to the "dot" as a separator, care is taken 
+     to ensure that, for example, "3.4.5.RevA" is converted to 
+     "3.4.5" and not to "3.4.5."'''
+    cleaned_text = re.sub(r'[^0-9.]', '', text)
+    if cleaned_text and cleaned_text.endswith('.'):
+        cleaned_text = cleaned_text[:-1]  # Remove "dot"
+    return cleaned_text or None
