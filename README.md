@@ -1,6 +1,6 @@
-# String-Sisyphos
+# String-Atlas
 
-For normalisation of input data the following files are provided. They are used for the netbox plugin [DDDC](../DDDC-Netbox-plugin) and for the intented CSAF Handler.
+For normalisation of input data the following files are provided. They are used for the netbox plugin [DDDC](../../DDDC-Netbox-plugin) and for the intented CSAF Handler.
 
 ## Usage
 
@@ -15,6 +15,10 @@ df = process_csaf_sources(get_csaf_sources(<path to directory>))
  ```
 
  **Note**: the function `find_file` of the helperfunctions.py will search at the folder and the upper folder *data* amd *String-Sysiphos*.
+
+### string_checker.py
+
+  no edition information provided at the moment
 
 ### string_helperfunctions.py
   
@@ -35,13 +39,13 @@ df = process_csaf_sources(get_csaf_sources(<path to directory>))
 - delete prefix and suffix
 - use synonyms and spellchecker
 
-### string_spellchecker.py
-
-  no edition information provided at the moment
-
 ### string_synonym.py
 
   provides a class for synonym checks
+
+## Contribution
+
+The string_normalizaton.py and process_csaf_files.py  and string_matching were set up by Benjamin Wensky.
 
 ## Dependencies
 
