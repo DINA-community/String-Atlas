@@ -71,10 +71,10 @@ def find_file(file_name):
     log = LogHandler()
     init_path = os.path.abspath(os.path.join(os.path.dirname(__file__)))
     if find_file_in_folder(init_path, file_name) == 'False':
-        # print('Look at ../data/ directory')
+        # print('Look at ../data directory')
         search_path = os.path.join(init_path, os.path.pardir, 'data')
         if find_file_in_folder(search_path, file_name) == 'False':
-            # print('Look at upper folder and all subfolders')
+            # print('Look at ../String-Sysiphos/')
             search_path = os.path.join(init_path, os.path.pardir, 'String-Sysiphos')
             if find_file_in_folder(os.path.join(search_path, os.path.pardir),
                                             file_name) == 'False':

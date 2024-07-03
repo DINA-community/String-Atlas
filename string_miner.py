@@ -4,10 +4,12 @@
     difference, such as when neighboring characters are switched, as in 'Test' and 'Tset'."
 """
 
-import yaml
-import regex
+
+import re as regex
 import pandas as pd
-import os
+import yaml
+from string_helperfunctions import find_file
+
 
 IS_LEV = False
 try:
@@ -21,11 +23,11 @@ else:
 # NOTE: The following definitions are used by default and can be customized if changes are made to the regex collection or corpus.
 
 # Default path to the file containing a regex collection (file type .yaml) used for regex matching. Modify file and path if using a custom file.
-DEFAULT_REGEX_COLLECTION_FILE = os.path.join(os.path.dirname(__file__), "data/re_data.yaml")
+DEFAULT_REGEX_COLLECTION_FILE = find_file("re_data.yaml")
 # Default list of the regex categories to use from the regex collection file. Add or remove entries from the list to limit or extend the regex matching. Ensure that the spelling matches the entries in the regex file.
 DEFAULT_REGEX_CATEGORIES = ["Device Family", "Device Type", "Article Number", "Version"]
 # Default path to the corpus file (file type .xlsx) used for levenshtein distance matching. Modify the corpus file and path for custom data.
-DEFAULT_CORPUS_FILE = os.path.join(os.path.dirname(__file__), "data/device_list.xlsx")
+DEFAULT_CORPUS_FILE = find_file("device_list.xlsx")
 # Default list of columns to use from the corpus file. Add or remove column entries from the list to limit or extend the levenshtein distance matching. Ensure that the spelling matches the columns from the corpus file.
 DEFAULT_CORPUS_COLUMNS = ["Device Family", "Device Type", "Article Number"]
 # Default column for filtering, here manufacturer specific filtering from the corpus file.
@@ -56,7 +58,7 @@ class StringMiner:
         - corpus_manufacturer_col: str, The column for filtering, here manufacturer specific filtering from the corpus file.
         """
         # Load the regular expressions from the file
-        with open(regex_collection_path, "r") as file:
+        with open(regex_collection_path, "r", encoding='utf-8') as file:
             self.regex_dict = yaml.safe_load(file)
 
         # Read the search strings from the Excel file
@@ -67,7 +69,7 @@ class StringMiner:
         self.corpus_vendor_col = corpus_filter_col
 
     def match(
-        self, target_string: str, vendor_filter: str = "", ignore_case: bool = False, strip_target: bool = False
+        self, target_string: str, vendor_filter: str = "", strip_target: bool = False
     ):
         """
         Matches a target string with search strings using fuzzy matching and returns the matching attributes as a dictionary.
@@ -75,20 +77,19 @@ class StringMiner:
         Parameters:
         - target_string: str, the target string to match with search strings
         - vendor_filter: str, the vendor name to filter the search strings (default: "")
-        - ignore_case: bool, whether to ignore case when matching (default: False)
+        - ignore_case: always on
         - strip_target: bool, whether to strip leading/trailing whitespace from the target string (default: False)
 
         Returns:
         - result: dict, a dictionary mapping attribute names to matching values
         """
-        return self.match_fuzzy(target_string, 0, vendor_filter, ignore_case, strip_target)
+        return self.match_fuzzy(target_string, 0, vendor_filter, strip_target)
 
     def match_fuzzy(
         self,
         target_string: str,
         max_errors: int = 1,
         vendor_filter: str = "",
-        ignore_case: bool = False,
         strip_target: bool = False,
     ):
         """
@@ -98,33 +99,29 @@ class StringMiner:
         - target_string: str, the target string to match with search strings
         - max_errors: int, the maximum number of errors allowed in the fuzzy matching (default: 1)
         - vendor_filter: str, the vendor name to filter the search strings (default: "")
-        - ignore_case: bool, whether to ignore case when matching (default: False)
+        - ignore_case: always on
         - strip_target: bool, whether to strip leading/trailing whitespace from the target string (default: False)
 
         Returns:
         - result: dict, a dictionary mapping attribute names to matching values
         """
         result = {}
-        re_flags = 0
-        if ignore_case:
-            re_flags = regex.IGNORECASE
         if strip_target:
             target_string = target_string.strip()
 
         for attribute in self.re_attributes:
             if (
                 matching_attributes := self._match_attribute_fuzzy(
-                    target_string, max_errors, attribute, vendor_filter, re_flags
+                    target_string, max_errors, attribute, vendor_filter
                 )
-            ) != None:
+            ) is not None:
                 if matching_attributes:
                     result[attribute] = matching_attributes
 
         return result
 
     def _match_attribute_fuzzy(
-        self, target_string: str, max_errors: int, attribute: str, vendor_filter: str = "", re_flag=regex.BESTMATCH
-    ):
+        self, target_string: str, max_errors: int, attribute: str, vendor_filter: str = ""):
         """
         Matches a target string with a fuzzy regular expression for a specific attribute and returns the matching string or None.
 
@@ -148,7 +145,7 @@ class StringMiner:
                 for re_list in regex_str:
                     for i in range(max_errors + 1):
                         pattern = "(?:" + re_list + "){e<=" + str(i) + "}"
-                        if match := regex.search(pattern, target_string, flags=re_flag):
+                        if match := regex.search(pattern, target_string, flags=regex.I):
                             result = match.group(0)
                             break
                     if result != None:
@@ -156,10 +153,10 @@ class StringMiner:
             else:
                 for i in range(max_errors + 1):
                     pattern = "(?:" + regex_str + "){e<=" + str(i) + "}"
-                    if match := regex.search(pattern, target_string, flags=re_flag):
+                    if match := regex.search(pattern, target_string, flags=regex.I):
                         result = match.group(0)
                         break
-                if result != None:
+                if result is not None:
                     break
         return result
 
@@ -304,7 +301,7 @@ if __name__ == "__main__":
     # ----------- default regex stripping whitespaces + ignorecase ----------- #
     print("\n# ----------- default regex stripping whitespaces + ignorecase ----------- #")
     for l in test_nmap:
-        print(sm.match(l, strip_target=True, ignore_case=True))
+        print(sm.match(l, strip_target=True))
 
     # ----------- Tests with fuzzy regex ----------- #
     print("\n# ----------- Tests with fuzzy regex ----------- #")

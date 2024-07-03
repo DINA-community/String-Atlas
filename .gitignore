@@ -131,6 +131,7 @@ env.bak/
 venv.bak/
 test/
 df_*
+*.odt
 
 # Spyder project settings
 .spyderproject

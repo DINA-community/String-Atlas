@@ -1,6 +1,7 @@
 import pprint
 import pandas as pd
 from spellchecker import SpellChecker
+from string_helperfunctions import find_file
 import os
 # NOTE: The following definitions are used by default and can be customized if changes are made to the regex collection or corpus.
 
@@ -26,7 +27,7 @@ class StringChecker:
     def __init__(
         self,
         additional_language: str = "",
-        corpus_file: str = DEFAULT_CORPUS_FILE,
+        corpus_file: str = find_file('device_list.xlsx'),
         corpus_cols_to_use: list = DEFAULT_CORPUS_COLUMNS,
         corpus_cols_spell_split: list = DEFAULT_COLUMNS_SPELL_SPLIT,
         corpus_cols_whitespace_split: list = DEFAULT_COLUMNS_WHITESPACE_SPLIT,
