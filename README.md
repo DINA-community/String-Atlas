@@ -13,7 +13,7 @@ At the moment, the repository consists of separated python modules. There is no 
 |string_helperfunctions | stable |
 |string_matching        | need major revision |
 |string_miner           | major revision needed --> development in progress by another thesis|
-|string_normalization   | need major revision #1 #3 #4 #5 -> [branch](/dev_normalization)|
+|string_normalization   | need major revision #1 #3 #4 #5 -> branch: dev_normalization|
 |string_synonym         | stable |
 
 While the functions are explained in the code itself, some adjustments must be made when executing the code itself.
@@ -74,7 +74,6 @@ The string_normalizaton.py and process_csaf_files.py and string_matching were se
 ## Dependencies
 
 Some functions will need specific data for string processing. Those can be found in String-Sysiphos.
-:exclamation: add further inormation here
 
 ## License
 
