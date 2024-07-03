@@ -79,4 +79,4 @@ Some functions will need specific data for string processing. Those can be found
 
 The software was developed on behalf of the [BSI](https://www.bsi.bund.de) \(Federal Office for Information Security\)
 
-Copyright (c) 2024 by DINA-Community BSD 3-Clause License. [See License](/LICENSE)
+Copyright &copy; 2024 by DINA-Community Apache 2.0 License. [See License](/LICENSE)
