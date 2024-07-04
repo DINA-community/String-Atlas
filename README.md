@@ -1,10 +1,32 @@
 # String-Atlas
 
-For normalisation of input data the following files are provided. They are used for the netbox plugin [DDDC](../../DDDC-Netbox-plugin) and for the intented CSAF Handler.
+> For normalisation of input data the following files are provided. They are used for the netbox plugin [DDDC](https://github.com/DINA-community/DDDC-Netbox-plugin) and for the intented CSAF Handler.
+>
+> :exclamation: This is a developing state at the moment and not ready to use.
 
 ## Overview
 
-At the moment, the repository consists of separated python modules. There is no modules yet, that uses the scripts together. This will take place in a new project while revising the modules step by step separately.
+In general String-Atlas is a collection of modules used for matching CSAF documents with assets of a asset data base. This collection was designed for the DINA-community project, surrounding Malcolm, DDDC and CSAF-Handler.
+
+![Flowchart_CSAFMatcher][fig_flow]
+<style>
+  img{
+    width: 30%;
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+  }
+</style>
+
+At the beginning, both datasets have to be adjusted for comparision. Therefore, the matching informations (attributes) have to be mapped to the attributes used for the Netbox plugin [DDDC](https://github.com/DINA-community/DDDC-Netbox-plugin). This mapping is done in `process_csaf_files.py` as module *Flatten CSAF Data into Pandas DataFrame* and in the module `Database Mapping` \(not implemented yet\)
+
+The module *DataCleaning/Standardisation* adjust the input data of both datasets for comparison. It shall be used in the Netbox plugin DDDC as well.
+
+The matching process shall satisfy the CSAF Standard. Therefore, the functions in string_matching.py must be extended with regard to matching priorities \(Modi\) 1 and 3 in [Issue 593](https://github.com/oasis-tcs/csaf/issues/593) and matching priority 2 \(Modi-2\) must be adapted with regard to the data fields to be compared.
+
+The *DataCleaning/Standardisation* adjust the input data of both datasets for comparison.
+
+There is no modules yet, that uses the scripts together. This will take place in a new project while revising the modules step by step separately.
 
 |module  | status |
 |- |- |
@@ -12,8 +34,8 @@ At the moment, the repository consists of separated python modules. There is no 
 |string_checker         | #2 + major revision needed --> development in progress by another thesis |
 |string_helperfunctions | stable |
 |string_matching        | need major revision |
-|string_miner           | major revision needed --> development in progress by another thesis|
-|string_normalization   | need major revision #1 #3 #4 #5 -> branch: dev_normalization|
+|string_miner           | major revision needed --> development in progress by another thesis |
+|string_normalization   | need major revision #1 #3 #4 #5 -> branch: dev_normalization |
 |string_synonym         | stable |
 
 While the functions are explained in the code itself, some adjustments must be made when executing the code itself.
@@ -80,3 +102,5 @@ Some functions will need specific data for string processing. Those can be found
 The software was developed on behalf of the [BSI](https://www.bsi.bund.de) \(Federal Office for Information Security\)
 
 Copyright &copy; 2024 by DINA-Community Apache 2.0 License. [See License](/LICENSE)
+
+[fig_flow]: ./images/Flowchart_CSAFMatcher.svg
