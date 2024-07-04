@@ -1,0 +1,3 @@
+[submodule "string-sysiphos"]
+	path = string-sysiphos
+	url = https://github.com/DINA-community/String-Sysiphos
