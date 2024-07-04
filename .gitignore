@@ -131,6 +131,10 @@ env.bak/
 venv.bak/
 test/
 df_*
+
+# Images
+*.drawio
+
 *.odt
 
 # Spyder project settings

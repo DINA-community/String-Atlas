@@ -9,14 +9,6 @@
 In general String-Atlas is a collection of modules used for matching CSAF documents with assets of a asset data base. This collection was designed for the DINA-community project, surrounding Malcolm, DDDC and CSAF-Handler.
 
 ![Flowchart_CSAFMatcher][fig_flow]
-<style>
-  img{
-    width: 30%;
-    display: block;
-    margin-right: auto;
-    margin-left: auto;
-  }
-</style>
 
 At the beginning, both datasets have to be adjusted for comparision. Therefore, the matching informations (attributes) have to be mapped to the attributes used for the Netbox plugin [DDDC](https://github.com/DINA-community/DDDC-Netbox-plugin). This mapping is done in `process_csaf_files.py` as module *Flatten CSAF Data into Pandas DataFrame* and in the module `Database Mapping` \(not implemented yet\)
 
