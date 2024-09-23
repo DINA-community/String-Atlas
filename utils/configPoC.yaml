@@ -1,0 +1,17 @@
+---
+logger:
+  default:
+    basics:
+      log_file: logs/default.log
+      log_max_file_size: 10 MB
+      log_retention: 5
+      log_level: INFO
+  large:
+    basics:
+      log_file: logs/default.log
+      log_max_file_size: 20 MB
+      log_retention: 5
+      log_level: INFO 
+
+
+

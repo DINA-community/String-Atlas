@@ -132,6 +132,8 @@ venv.bak/
 test/
 df_*
 *.odt
+Testoutput.csv
+*.parquet
 
 # Spyder project settings
 .spyderproject

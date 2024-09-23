@@ -1,159 +1,182 @@
 """Module provides functions for normalization for matching CSAF and assets."""
 
-
 import os
 import re
+import datetime
 import pandas as pd
-from string_helperfunctions import read_json_file
-from string_helperfunctions import find_file
+from utils.string_helperfunctions import read_json_file
+from utils.string_helperfunctions import find_file
+from utils.log_class import LogStyle
 from string_synonym import StringSynonym
 
 
 #Encoding
 ENCODING = "uft-8"
-'''
-#TODO Liste
-Produktname (überarbeiten)
-Version (sehr mager)
-'''
 
-def clean_vendor(df: pd.DataFrame):
-    """Clean manufacturer string with know pre_delete dictonary.
-        ...
-        
-        Parameters:
-            test_str (str): The test string to normalize.
-            specific_dict (str): The specific attribute (e.g. device family) to use for 
-                normalization. If not provided or not found, the whole dictionary (pd.DataFrame)
-                is used.
-            case_sensitive (bool): Not an option anymore. Serach is always case insensitve.
 
-        Returns:
-            str: The normalized string based on the specified dictionary.
-            '' : if the test string is empty or no match is found in the dictionaries.
-    """
-    df_load= pd.read_parquet(os.path.join(os.path.dirname(__file__), "test", "df_CSAF"))
-    df = pd.DataFrame(df_load.vendor.unique(), columns=["vendor"])
-    df["vendor_prep"] = df.vendor.copy()
-    # catch empty/missing values
-    df.vendor_prep.fillna('None', inplace=True)
-    df.vendor_prep.loc[df.vendor_prep == ""] = 'None'
-    # single the vendor
-    df.vendor_prep = df.vendor_prep.str.split('and |, ')
-    df = df.explode(column='vendor_prep')
-    #####################
-    #### precleaning ####
-    #####################
-    df["vendor_precl"] = df.vendor_prep.copy()
-    # get rid of abbreviations in brackets
-    pattern_brack = r'\(.*?\)'
-    df.vendor_precl.replace(pattern_brack," ", regex=True, inplace=True)
-    # replace doubles spaces
-    df.vendor_precl.replace(r'\s+'," ", regex=True, inplace=True)
-    df.vendor_precl = df.vendor_precl.str.strip()
-    ########################################
-    ### delete unneccsary name fragments ###
-    ########################################
-    df["vendor_del"] = df.vendor_precl.copy()
-    pre_delete = read_json_file(find_file('normalisation.json')
-                                )['cleaning']['pre_delete_vendor']
-    df["vendor_del"] = df.vendor_del.replace(pre_delete, ' ', regex=True)
-    ####################
-    ### Postcleaning ###
-    ####################
-    df["vendor_poscl"] = df.vendor_del.copy()
-    df.vendor_poscl.replace(" & ", " ", regex=True, inplace=True)
-    df.vendor_poscl.replace(r'\s+'," ", regex=True, inplace=True)
-    df.vendor_poscl.replace(r'(?i)\bKG$'," ", regex=True, inplace=True)
-    #replace missing . and -
-    df.vendor_poscl = df.vendor_poscl.str.strip()
-    df.vendor_poscl.replace(r'\s?\.$|^\.\s?|\s\.\s', '', regex=True, inplace=True)
-    # remove / and \ from strings and replace it with a space
-    df.vendor_poscl.replace(r'[\/\\]', '', regex=True, inplace=True)
-    # remove copyright
-    df.vendor_poscl.replace(r'(?i)\(c\)|©', '', regex=True, inplace=True)
-    ###############################
-    ### use vendor Synonym list ###
-    ###############################
-    syn = StringSynonym()
-    df["vendor_mod_Syn"] = df["vendor_poscl"].apply(lambda x: syn.normalize(x, 'vendor'))
-    # no change necessary
-    df.loc[df.vendor_mod_Syn.str.lower() == df.vendor.str.lower(), 'vendor_mod_Syn'] = ''
-    # check the synonym with original entry
-    df = df.assign(ind=range(len(df)))
-    maker = 0
-    df["vendor_syn"] = ''
-    for index in df['ind'].loc[df['vendor_mod_Syn']!='']:
-        a = df.loc[df['ind']==index]['vendor']
-        b = df.loc[df['ind']==index]['vendor_mod_Syn'].to_list()
-        checker = False
-        if len(b)> 1:
-            print("error")
-        for word in [entry.strip() for entry in b[0].lower().split(',')]:
-            if (a.str.lower().str.contains(word.strip()).any() or
-                a.str.lower().str.contains(word.strip().rstrip('s')).any()):
-                if checker:
-                    maker = index
-                    print(f'{index} and {word} with maker {maker}')
-                    checker = False # sollte egal sein
-                    continue
-                elif str(df.loc[df['ind']==index]['vendor']
-                         .to_list()[0]) == str(df.loc[df['ind']==maker]['vendor'].to_list()[0]):
-                    if index > 2 and index-maker == 1:
-                        df.loc[df['ind']==index, 'vendor_syn'] = word
-                        checker = False
-                        print(f'{word} and {index} with maker {maker}')
+class PrecleaningVendor():
+    """Precleaning of attribute vendor."""
+
+    def __init__(self, df_load: pd.DataFrame=pd.DataFrame()) -> None:
+        self.log = LogStyle()
+        self.df_init = df_load
+        self.result = self._clean_vendor()
+
+
+
+    def _clean_vendor(self):
+        """Clean manufacturer string with known pre_delete dictonary.
+            ...
+            
+            Parameters:
+                DataFrame with columns "vendor", "vendor_modified" needed
+                case_sensitive (bool): Not an option anymore. Serach is always case insensitve.
+
+            Returns:
+                Filled columns of vendor_modified
+        """
+        if len(self.df_init) == 0:
+            self.df_init= pd.read_parquet(os.path.join(os.path.dirname(__file__),
+                                                       "test", "df_CSAF"))
+        df = pd.DataFrame(self.df_init.vendor.unique(), columns=["vendor"])
+        df = self._vendor_preparation(df)
+        df = self._vendor_precleaning(df)
+        df = self._vendor_phrases(df)
+        df = self._vendor_postcleaning(df)
+        df = self._spellcheck(df)
+        df = self._vendor_synonym(df)
+        self.df_init.vendor_modified = self._vendor_consolidate(df, self.df_init)
+        return self.df_init
+
+    def _spellcheck(self, df :pd.DataFrame):
+        '''Uses the spellchecker function'''
+        self.log.logger.info('add column df["vendor_mod_Spell"]: not implemented yet')
+        return df
+
+    def _vendor_preparation(self, df :pd.DataFrame):
+        """Add new columns for string manipulation."""
+        df["vendor_prep"] = df.vendor.copy()
+        # catch empty/missing values
+        df.vendor_prep.fillna('None', inplace=True)
+        df.vendor_prep.loc[df.vendor_prep == ""] = 'None'
+        # single the vendor
+        df.vendor_prep = df.vendor_prep.str.split(', | and ')
+        #df.vendor_prep = df.vendor_prep.str.split(' and |, ')
+        df = df.explode(column='vendor_prep')
+        return df
+
+    def _vendor_precleaning(self, df :pd.DataFrame):
+        """Common precleaning."""
+        df["vendor_precl"] = df.vendor_prep.copy()
+        # get rid of abbreviations in brackets
+        pattern_brack = r'\(.*?\)'
+        df.vendor_precl.replace(pattern_brack," ", regex=True, inplace=True)
+        # replace doubles spaces
+        df.vendor_precl.replace(r'\s+'," ", regex=True, inplace=True)
+        df.vendor_precl = df.vendor_precl.str.strip()
+        return df
+
+    def _vendor_postcleaning(self, df :pd.DataFrame):
+        """Postcleaning of vendor column."""
+        df["vendor_poscl"] = df.vendor_del.copy()
+        df.vendor_poscl.replace(" & ", " ", regex=True, inplace=True)
+        df.vendor_poscl.replace(r'\s+'," ", regex=True, inplace=True)
+        df.vendor_poscl.replace(r'(?i)\bKG$'," ", regex=True, inplace=True)
+        #replace missing . and -
+        df.vendor_poscl = df.vendor_poscl.str.strip()
+        df.vendor_poscl.replace(r'\s?\.$|^\.\s?|\s\.\s', '', regex=True, inplace=True)
+        # remove / and \ from strings and replace it with a space
+        df.vendor_poscl.replace(r'[\/\\]', '', regex=True, inplace=True)
+        # remove copyright
+        df.vendor_poscl.replace(r'(?i)\(c\)|©', '', regex=True, inplace=True)
+        return df
+
+    def _vendor_phrases(self, df :pd.DataFrame):
+        """Delete unnecessary name fragments."""
+        df["vendor_del"] = df.vendor_precl.copy()
+        pre_delete = read_json_file(find_file('normalisation.json')
+                                    )['cleaning']['pre_delete_vendor']
+        df["vendor_del"] = df.vendor_del.replace(pre_delete, ' ', regex=True)
+        return df
+
+    def _vendor_synonym(self, df:pd.DataFrame):
+        """Use synonym list and also check with intial entry."""
+        syn = StringSynonym()
+        df["vendor_mod_Syn"] = df["vendor_poscl"].apply(lambda x: syn.normalize(x, 'vendor'))
+        # no change necessary
+        df.loc[df.vendor_mod_Syn.str.lower() == df.vendor.str.lower(), 'vendor_mod_Syn'] = ''
+        # check the synonym with original entry
+        df = df.assign(ind=range(len(df)))
+        maker = 0
+        df["vendor_syn"] = ''
+        for index in df['ind'].loc[df['vendor_mod_Syn']!='']:
+            a = df.loc[df['ind']==index]['vendor']
+            b = df.loc[df['ind']==index]['vendor_mod_Syn'].to_list()
+            checker = False
+            if len(b)> 1:
+                print("error")
+            for word in [entry.strip() for entry in b[0].lower().split(',')]:
+                if (a.str.lower().str.contains(word.strip()).any() or
+                    a.str.lower().str.contains(word.strip().rstrip('s')).any()):
+                    if checker:
+                        maker = index
+                        self.log.logger.info(f'{index} and {word} with maker {maker}')
+                        checker = False # sollte egal sein
                         continue
-                    elif index-maker > 1:
-                        df.loc[df['ind']==index, 'vendor_syn'] = word
-                        checker = False
-                        print('Should not be possible yet')
-                        continue
-                else:
-                    maker = 0
-                    checker = True
-                df.loc[df['ind']==index, 'vendor_syn'] = word
-    #Check if fully completed?
-    if (~(df.vendor_syn == '')).sum() < (~(df.vendor_mod_Syn == '')).sum():
-        number = {(~(df.vendor_mod_Syn == '')).sum() - (~(df.vendor_syn == '')).sum()}
-        print(f'There are {number} Synonyms where the check failed.')
-    df.drop(['ind', 'vendor_mod_Syn'], axis=1, inplace=True)
-    df = spellcheck(df)
+                    elif str(df.loc[df['ind']==index]['vendor']
+                            .to_list()[0]) == str(df.loc[df['ind']==maker]['vendor'].to_list()[0]):
+                        if index > 2 and index-maker == 1:
+                            df.loc[df['ind']==index, 'vendor_syn'] = word
+                            checker = False
+                            self.log.logger.info(f'{word} and {index} with maker {maker}')
+                            continue
+                        elif index-maker > 1:
+                            df.loc[df['ind']==index, 'vendor_syn'] = word
+                            checker = False
+                            self.log.logger.warning('Should not be possible yet')
+                            continue
+                    else:
+                        maker = 0
+                        checker = True
+                    df.loc[df['ind']==index, 'vendor_syn'] = word
+        #Check if fully completed?
+        if (~(df.vendor_syn == '')).sum() < (~(df.vendor_mod_Syn == '')).sum():
+            number = {(~(df.vendor_mod_Syn == '')).sum() - (~(df.vendor_syn == '')).sum()}
+            self.log.logger.warning(f'There are {number} Synonyms where the check failed.')
+        df.drop(['ind', 'vendor_mod_Syn'], axis=1, inplace=True)
+        return df
 
-    ###################
-    ### consolidate ###
-    ###################
-    # log manipulations of the vendor string
-    df[[col + '_fin' for col in df.columns[1:]]] = df[df.columns[1:]].copy()
-    df.vendor_precl_fin.where(~(df.vendor_precl == df.vendor_prep) , '', inplace=True)
-    df.vendor_del_fin.where(~(df.vendor_prep == df.vendor_del) , '', inplace=True)
-    df.vendor_poscl_fin.where(~(df.vendor_del == df.vendor_poscl) , '', inplace=True)
-    df.vendor_syn_fin.where(~(df.vendor_poscl == df.vendor_syn) , '', inplace=True)
-    df_mod_col = [col for col in df.columns if '_fin' in col]
-    df_mod_col.insert(0,'vendor')
-    df[df_mod_col].to_parquet('log_vendor_<time>_<runID>.parquet')
-    # generate final column modified
-    df['vendor_modified'] = ''
-    df.vendor_modified.where(~(df.vendor_modified == '') , df.vendor_syn_fin, inplace=True)
-    df.vendor_modified.where(~(df.vendor_modified == '') , df.vendor_poscl, inplace=True)
-    if len(df.groupby(df.index)['vendor_modified'].apply(list)
-           .reset_index(drop=True))!= len(df_load.vendor.unique()):
-        print('WARNING: colum modified as not as many entries as the original one! ')
-    df_fin = pd.DataFrame()
-    df_fin['vendor_modified'] = df.groupby(df.index)['vendor_modified'].apply(list).reset_index(
-        drop=True)
-    df_fin['vendor_modified'] = df_fin['vendor_modified'].str.join(', ')
-    df_fin.vendor_modified.replace(r'(, ){2}', ', ', regex=True, inplace=True)
-    df_fin.vendor_modified.replace(r'\b,\s?$', '', regex=True, inplace=True)
-    df_fin.index = df_load.vendor.unique()
-    # Update inital DataFrame
-    df_load.vendor_modified = df_load['vendor'].map(df_fin['vendor_modified'])
-    return df_load
+    def _vendor_consolidate(self, df :pd.DataFrame, df_load :pd.DataFrame):
+        """Delete the temporary files."""
+        # log manipulations of the vendor string
+        df[[col + '_fin' for col in df.columns[1:]]] = df[df.columns[1:]].copy()
+        df.vendor_precl_fin.where(~(df.vendor_precl == df.vendor_prep) , '', inplace=True)
+        df.vendor_del_fin.where(~(df.vendor_prep == df.vendor_del) , '', inplace=True)
+        df.vendor_poscl_fin.where(~(df.vendor_del == df.vendor_poscl) , '', inplace=True)
+        df.vendor_syn_fin.where(~(df.vendor_poscl == df.vendor_syn) , '', inplace=True)
+        df_mod_col = [col for col in df.columns if '_fin' in col]
+        df_mod_col.insert(0,'vendor')
+        time = datetime.datetime.now().strftime("%y-%m-%d")
+        df[df_mod_col].to_parquet('log_vendor_'+time+'_<runID>.parquet')
+        # generate final column modified
+        df['vendor_modified'] = ''
+        df.vendor_modified.where(~(df.vendor_modified == '') , df.vendor_syn_fin, inplace=True)
+        df.vendor_modified.where(~(df.vendor_modified == '') , df.vendor_poscl, inplace=True)
+        if len(df.groupby(df.index)['vendor_modified'].apply(list)
+            .reset_index(drop=True))!= len(df_load.vendor.unique()):
+            print('WARNING: colum modified as not as many entries as the original one! ')
+        df_fin = pd.DataFrame()
+        df_fin['vendor_modified'] = df.groupby(df.index)['vendor_modified'].apply(list).reset_index(
+            drop=True)
+        df_fin['vendor_modified'] = df_fin['vendor_modified'].str.join(', ')
+        df_fin.vendor_modified.replace(r'(, ){2}', ', ', regex=True, inplace=True)
+        df_fin.vendor_modified.replace(r'\b,\s?$', '', regex=True, inplace=True)
+        df_fin['vendor'] = df_load.vendor.unique()
+        return df_load.merge(df_fin,
+                             on='vendor',
+                             how ='left',
+                             suffixes=('del','_fin')).vendor_modified_fin
 
-def spellcheck(df :pd.DataFrame):
-    '''Uses the spellchecker function'''
-    print('add column df["vendor_mod_Spell"]: not implemented yet')
-    return df
 
 # helperfunctions
 def remove_special_characters(text):
@@ -324,3 +347,9 @@ def remove_letters_from_string(text):
     if cleaned_text and cleaned_text.endswith('.'):
         cleaned_text = cleaned_text[:-1]  # Remove "dot"
     return cleaned_text or None
+
+if __name__ == "__main__":
+    # Test for vendor precleaning.
+    data_test = pd.read_csv("vendor_testfile.csv")
+    data = PrecleaningVendor(data_test).result
+    data.drop_duplicates(subset="vendor").to_csv("Testoutput.csv", index=False)
