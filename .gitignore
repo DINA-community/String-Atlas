@@ -136,6 +136,8 @@ df_*
 *.drawio
 
 *.odt
+Testoutput.csv
+*.parquet
 
 # Spyder project settings
 .spyderproject
