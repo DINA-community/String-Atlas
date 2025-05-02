@@ -8,7 +8,7 @@
 import re as regex
 import pandas as pd
 import yaml
-from string_helperfunctions import find_file
+from utils.string_helperfunctions import find_file
 
 
 IS_LEV = False

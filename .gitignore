@@ -129,14 +129,15 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-test/
+dev/
 df_*
+.vscode/
 
 # Images
 *.drawio
 
 *.odt
-Testoutput.csv
+Testoutput*.csv
 *.parquet
 
 # Spyder project settings
