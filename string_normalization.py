@@ -342,6 +342,6 @@ def remove_letters_from_string(text):
 
 if __name__ == "__main__":
     # Test for vendor precleaning.
-    data_test = pd.read_csv("vendor_testfile.csv")
+    data_test = pd.read_csv("test/vendor_testfile.csv")
     data = PrecleaningVendor(data_test).result
-    data.drop_duplicates(subset="vendor").to_csv("Testoutput_new.csv", index=False)
+    data.drop_duplicates(subset="vendor").to_csv("test/vendor_testoutput.csv", index=False)
