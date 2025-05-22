@@ -7,8 +7,6 @@ import pandas as pd
 from utils.string_helperfunctions import read_json_file
 from utils.string_helperfunctions import find_file
 from utils.log_class import LogStyle
-from string_synonym import StringSynonym
-
 
 #Encoding
 ENCODING = "uft-8"
@@ -23,14 +21,13 @@ class PrecleaningVendor():
         self.result = self._clean_vendor()
 
 
-
     def _clean_vendor(self):
-        """Clean manufacturer string with known pre_delete dictonary.
+        """Clean manufacturer string with known pre_delete dictionary.
             ...
             
             Parameters:
                 DataFrame with columns "vendor", "vendor_modified" needed
-                case_sensitive (bool): Not an option anymore. Serach is always case insensitve.
+                case_sensitive (bool): Not an option anymore. Search is always case insensitive.
 
             Returns:
                 Filled columns of vendor_modified
@@ -43,15 +40,9 @@ class PrecleaningVendor():
         df = self._vendor_precleaning(df)
         df = self._vendor_phrases(df)
         df = self._vendor_postcleaning(df)
-        df = self._spellcheck(df)
-        df = self._vendor_synonym(df)
         self.df_init.vendor_modified = self._vendor_consolidate(df, self.df_init)
         return self.df_init
 
-    def _spellcheck(self, df :pd.DataFrame):
-        '''Uses the spellchecker function'''
-        self.log.logger.info('add column df["vendor_mod_Spell"]: not implemented yet')
-        return df
 
     def _vendor_preparation(self, df :pd.DataFrame):
         """Add new columns for string manipulation."""
@@ -89,6 +80,8 @@ class PrecleaningVendor():
         df.vendor_poscl.replace(r'[\/\\]', '', regex=True, inplace=True)
         # remove copyright
         df.vendor_poscl.replace(r'(?i)\(c\)|©', '', regex=True, inplace=True)
+        # remove url fragments
+        df.vendor_poscl.replace(r'\.(com|de|org|net|info|gov|io|uk|eu|nl|fr)$', '', regex=True, inplace=True)
         return df
 
     def _vendor_phrases(self, df :pd.DataFrame):
@@ -100,7 +93,8 @@ class PrecleaningVendor():
         return df
 
     def _vendor_synonym(self, df:pd.DataFrame):
-        """Use synonym list and also check with intial entry."""
+        """Deprecated."""
+        from string_synonym import StringSynonym
         syn = StringSynonym()
         df["vendor_mod_Syn"] = df["vendor_poscl"].apply(lambda x: syn.normalize(x, 'vendor'))
         # no change necessary
@@ -153,18 +147,16 @@ class PrecleaningVendor():
         df.vendor_precl_fin.where(~(df.vendor_precl == df.vendor_prep) , '', inplace=True)
         df.vendor_del_fin.where(~(df.vendor_prep == df.vendor_del) , '', inplace=True)
         df.vendor_poscl_fin.where(~(df.vendor_del == df.vendor_poscl) , '', inplace=True)
-        df.vendor_syn_fin.where(~(df.vendor_poscl == df.vendor_syn) , '', inplace=True)
         df_mod_col = [col for col in df.columns if '_fin' in col]
         df_mod_col.insert(0,'vendor')
         time = datetime.datetime.now().strftime("%y-%m-%d")
-        df[df_mod_col].to_parquet('log_vendor_'+time+'_<runID>.parquet')
+        df[df_mod_col].to_parquet('logs/log_vendor_'+time+'_<runID>.parquet')
         # generate final column modified
         df['vendor_modified'] = ''
-        df.vendor_modified.where(~(df.vendor_modified == '') , df.vendor_syn_fin, inplace=True)
         df.vendor_modified.where(~(df.vendor_modified == '') , df.vendor_poscl, inplace=True)
         if len(df.groupby(df.index)['vendor_modified'].apply(list)
             .reset_index(drop=True))!= len(df_load.vendor.unique()):
-            print('WARNING: colum modified as not as many entries as the original one! ')
+            print('WARNING: column modified as not as many entries as the original one! ')
         df_fin = pd.DataFrame()
         df_fin['vendor_modified'] = df.groupby(df.index)['vendor_modified'].apply(list).reset_index(
             drop=True)
@@ -350,6 +342,6 @@ def remove_letters_from_string(text):
 
 if __name__ == "__main__":
     # Test for vendor precleaning.
-    data_test = pd.read_csv("vendor_testfile.csv")
+    data_test = pd.read_csv("test/vendor_testfile.csv")
     data = PrecleaningVendor(data_test).result
-    data.drop_duplicates(subset="vendor").to_csv("Testoutput.csv", index=False)
+    data.drop_duplicates(subset="vendor").to_csv("test/vendor_testoutput.csv", index=False)

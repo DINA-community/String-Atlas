@@ -8,9 +8,9 @@
 
 In general String-Atlas is a collection of modules used for matching CSAF documents with assets of a asset data base. This collection was designed for the DINA-community project, surrounding Malcolm, DDDC and CSAF-Handler.
 
-![Flowchart_CSAFMatcher][fig_flow]
+![Flowchart_CSAFMatcher][fig_flow_new]
 
-At the beginning, both datasets have to be adjusted for comparision. Therefore, the matching informations (attributes) have to be mapped to the attributes used for the Netbox plugin [DDDC](https://github.com/DINA-community/DDDC-Netbox-plugin). This mapping is done in `process_csaf_files.py` as module *Flatten CSAF Data into Pandas DataFrame* and in the module `Database Mapping` \(not implemented yet\)
+At the beginning, both datasets have to be adjusted for comparison. Therefore, the matching information (attributes) have to be mapped to the attributes used for the Netbox plugin [DDDC](https://github.com/DINA-community/DDDC-Netbox-plugin). This mapping is done in `process_csaf_files.py` as module *Flatten CSAF Data into Pandas DataFrame* and in the module `Database Mapping` \(not implemented yet\)
 
 The module *DataCleaning/Standardisation* adjust the input data of both datasets for comparison. It shall be used in the Netbox plugin DDDC as well.
 
@@ -22,15 +22,12 @@ There is no modules yet, that uses the scripts together. This will take place in
 
 |module  | status |
 |- |- |
-|process_csaf_files     | need faster routines |
-|string_checker         | #2 + major revision needed --> development in progress by another thesis |
+|process_csaf_files     | deprecated |
+|string_checker         | major revision needed [#2](https://github.com/DINA-community/String-Atlas/issues/)|
 |string_helperfunctions | stable |
-|string_matching        | need major revision |
-|string_miner           | major revision needed --> development in progress by another thesis |
-|string_normalization   | need major revision #1 #3 #4 #5 -> branch: dev_normalization |
+|string_miner           | major revision needed |
+|string_normalization   | [issue #3 #4 #5](https://github.com/DINA-community/String-Atlas/issues/) |
 |string_synonym         | stable |
-
-While the functions are explained in the code itself, some adjustments must be made when executing the code itself.
 
 ### process_csaf_files.py
 
@@ -48,13 +45,9 @@ df = process_csaf_sources(get_csaf_sources(<path to directory>))
 
 ### string_helperfunctions.py
   
-  The LogHandler class is used for all other functions where logging takes place.
+  The LogStyle class is used for all other functions where logging takes place.
 
   Chances in this file have impact on several other files. Be aware of the dependencies.
-
-### string_matching.py
-
-  string comparison (intented for CSAF matching).
 
 ### string_miner.py
 
@@ -83,11 +76,11 @@ There are some packages that have to be installed by the user, in order to use s
 
 ## Contribution
 
-The string_normalizaton.py and process_csaf_files.py and string_matching were set up by Benjamin Wensky.
+The `string_normalizaton.py` and `process_csaf_files.py` were set up by Benjamin Wensky.
 
 ## Dependencies
 
-Some functions will need specific data for string processing. Those can be found in String-Sysiphos.
+Some functions will need specific data for string processing. Those can be found in [String-Sysiphos](https://github.com/DINA-community/String-Sysiphos).
 
 ## License
 
@@ -95,4 +88,4 @@ The software was developed on behalf of the [BSI](https://www.bsi.bund.de) \(Fed
 
 Copyright &copy; 2024 by DINA-Community Apache 2.0 License. [See License](/LICENSE)
 
-[fig_flow]: ./images/Flowchart_CSAFMatcher.svg
+[fig_flow_new]: ./images/Cleansing.svg

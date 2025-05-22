@@ -6,19 +6,20 @@
             specific_dict (str): The specific attribute (e.g. device family) to use for 
                 normalization. If not provided or not found, the whole dictionary (pd.DataFrame)
                 is used.
-            case_sensitive (bool): Not an option anymore. Serach is always case insensitve.
+            case_sensitive (bool): Not an option anymore. Search is always case insensitive.
 
         Returns:
             str: The normalized string based on the specified dictionary.
             '' : if the test string is empty or no match is found in the dictionaries.
 """
-from inspect import currentframe, getframeinfo
+#from inspect import currentframe, getframeinfo
 import re
 import yaml
 import pandas as pd
 import numpy as np
-from string_helperfunctions import LogHandler, find_file
-
+from utils.string_helperfunctions import find_file
+from utils.log_class import LogStyle, log_test
+from string_normalization import PrecleaningVendor
 # Default path to files for loading custom synonym words.
 DEFAULT_SYNONYM_FILENAME = "synonym_list.yaml"
 
@@ -41,8 +42,9 @@ class StringSynonym:
                 Default: DEFAULT_SYNONYM_FILENAME.
         """
 
-        formating = "[%(asctime)s - %(levelname)s - StringNormalizer  %(funcName)s] %(message)s"
-        self.logger = LogHandler(formating)
+
+        self.logger = LogStyle(module_name=self.__class__.__name__,
+                               file_name="string_synonym.py").logger
         self.df_dict = self._read_synonyms(find_file(synonyms_filename))
 
     def _read_synonyms(self, synonyms_path :str):
@@ -52,7 +54,7 @@ class StringSynonym:
             synonyms_path (str): Path to the yaml file containing synonyms.
         Returns:
             df: A df containing:
-                - columns: in general attributes of the DataModel in Netbox plugin
+                - columns: in general attributes of the DataModel in NetBox plugin
                 - index: 
                     - alias: for the attribute (column name)
                     - unknown: if a manufacturer is not known 
@@ -70,9 +72,7 @@ class StringSynonym:
                     df = df.astype(object)
                 return df
         except FileNotFoundError:
-            frame = getframeinfo(currentframe())  # type: ignore
-            self.logger.error(f"Error by trying reading file with path {synonyms_path} "
-                              f"in function {frame.function}")
+            self.logger.error(f"Error by trying reading file with path {synonyms_path} ")
             return pd.DataFrame()
 
     def _get_master_word_from_dictionary(self, test_str: str, dictionary: pd.DataFrame):
@@ -82,7 +82,7 @@ class StringSynonym:
         Parameters:
             test_str (str): The test string to search for in the dictionary.
             dictionary (pd.DataFrame): The dictionary to search in.
-            case_sensitive (bool): Not an option anymore. Serach is always case insensitve.
+            case_sensitive (bool): Not an option anymore. Search is always case insensitive.
 
         Returns:
             str: The master word from the dictionary that matches the test string.
@@ -90,7 +90,7 @@ class StringSynonym:
                     - Otherwise master word(s) separated by ","
             Returns an empty string if no match is found.
         """
-        # remove special signs
+        # remove special signs - too lazy. use normalization
         test_str = re.sub(r'[)(),-._/]', ' ', test_str)
         test_str = re.sub(r'\s+', ' ', test_str).strip()
         master_word = ""
@@ -107,8 +107,7 @@ class StringSynonym:
                         if len(match) == 1 :
                             return match[0]
                         elif len(match):
-                            frame = getframeinfo(currentframe())  # type: ignore
-                            self.logger.info(f"multiple hits in function {frame.function} "
+                            self.logger.info(f"multiple hits in function "
                                              f"for string {test_str}")
                             for word in match:
                                 master_word = master_word + ' , ' + word
@@ -129,16 +128,14 @@ class StringSynonym:
             test_str (str): The test string to normalize.
             specific_dict (str): The specific dictionary (as pd.DataFrame) to use for normalization.
                 If not provided or not found, the whole dictionary is used.
-            case_sensitive (bool): Not an option anymore. Serach is always case insensitve.
+            case_sensitive (bool): Not an option anymore. Search is always case insensitive.
 
         Returns:
             str: The normalized string based on the specified dictionary.
             '' : if the test string is empty or no match is found in the dictionaries.
         """
-        frame = getframeinfo(currentframe())  # type: ignore
         if not test_str:
-            self.logger.warning(f"WARNING: No input string to normalize. "
-                                f"Call in line {frame.lineno} of function {frame.function}")
+            self.logger.warning("WARNING: No input string to normalize. ")
             return ""
         if specific_dict_name == "":
             return self._get_master_word_from_dictionary(test_str, self.df_dict)
@@ -146,17 +143,19 @@ class StringSynonym:
         match = self.df_dict.columns[self.df_dict.loc['alias'].str.contains(specific_dict_name,
                                                                             na=False, case=False)]
         if len(match)> 1:
-            self.logger.info(f"Inconclusive specified dictionary name {specific_dict_name}. "
-                             f"Call in line {frame.lineno} of function {frame.function}")
+            self.logger.info(f"Inconclusive specified dictionary name {specific_dict_name}. ")
             return self._get_master_word_from_dictionary(test_str, self.df_dict)
         elif len(match):
-            self.logger.info(f"Use specific column {match[0]}. "
-                             f"Call in line {frame.lineno} of function {frame.function}")
-            return self._get_master_word_from_dictionary(test_str,
-                                                         pd.DataFrame(self.df_dict[match[0]]))
+            self.logger.info(f"Use specific column {match[0]}. ")
+            if match[0] == "Manufacturer":
+                data = pd.DataFrame({'vendor': [test_str], "vendor_modified": [""]})
+                return self._get_master_word_from_dictionary(PrecleaningVendor(data).result["vendor_modified"][0],
+                                                                               pd.DataFrame(self.df_dict[match[0]]))
+            else:
+                return self._get_master_word_from_dictionary(test_str,
+                                                             pd.DataFrame(self.df_dict[match[0]]))
         else:
-            self.logger.info(f"no specified dictionary name for found {specific_dict_name}. "
-                             f"Call in line {frame.lineno} of function {frame.function}")
+            self.logger.info(f"no specified dictionary name for found {specific_dict_name}. ")
             return self._get_master_word_from_dictionary(test_str, self.df_dict)
 
 
@@ -175,6 +174,7 @@ if __name__ == "__main__":
             case_sensitive (bool): Determines whether the normalization is case sensitive or not.
                 Defaults to False.
         """
+        log_test(__name__, "string_synonym.py")
         with open('test_synonym.txt', 'a', encoding='utf-8') as file:
             file.write(f"'{test_str}' -> '{sn.normalize(test_str, specific_dict)}'\n")
 
