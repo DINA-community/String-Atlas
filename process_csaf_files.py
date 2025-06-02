@@ -20,8 +20,8 @@ def get_csaf_sources(path_directory: str):
     Return:
         pd.Dataframe with all CSAF documents found with columns path and file name
     '''
-    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogStyle(formating)
+    formatting = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
+    log = LogStyle(formatting)
     file_list = []
     for source in [path_directory]:
         source = os.path.normpath(source)
@@ -35,7 +35,7 @@ def get_csaf_sources(path_directory: str):
                     with open(file_path, 'r', encoding=ENCODING) as filename:
                         #os.path.getsize(fullpathhere) > 0
                         if os.stat(file_path).st_size == 0:
-                            log.logger.debug('Filepath %s lead to a emtpy json file. '
+                            log.logger.debug('Filepath %s lead to a empty json file. '
                                              'File is excluded.', file_path)
                             continue
                         try:
@@ -62,13 +62,13 @@ def get_csaf_sources(path_directory: str):
 
 def read_csaf_file(file_path):
     '''Read json file of a CSAF document.'''
-    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogStyle(formating)
+    formatting = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
+    log = LogStyle(formatting)
     try:
         with open(file_path, 'r', encoding=ENCODING) as filename:
             #os.path.getsize(fullpathhere) > 0
             if os.stat(file_path).st_size == 0:
-                log.logger.warning('Filepath %s lead to a emtpy json file.'
+                log.logger.warning('Filepath %s lead to a empty json file.'
                                    ' File is excluded.', file_path)
             try:
                 dummy = json.load(filename)
@@ -96,7 +96,7 @@ def read_csaf_file(file_path):
 
 
 def flatten_tree_data(json_data, input_type="product_tree"):
-    '''Separate in two different structes of CSAF files.'''
+    '''Separate in two different structures of CSAF files.'''
     tree = json_data.get(input_type, {})
     # if full product names instead of branches
     if 'full_product_names' in tree:
@@ -133,8 +133,8 @@ def flatten_branch(branch, parent_attributes):
 
 def process_csaf_sources(csaf_sources: pd.DataFrame):
     '''Process the csaf json list'''
-    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogStyle(formating)
+    formatting = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
+    log = LogStyle(formatting)
     combined_df = pd.DataFrame()
     predefined_columns = read_json_file(find_file('config.json')
                                         )['df_columns']['predefined_columns']
@@ -142,7 +142,7 @@ def process_csaf_sources(csaf_sources: pd.DataFrame):
     for i in range(len(csaf_sources)):
         if i > 0:
             if i % fac == 0:
-                print(f"{np.round(i / len(csaf_sources) * 100, 2)}% eingelesen")
+                print(f"{np.round(i / len(csaf_sources) * 100, 2)}% of files processed.")
         file_path = csaf_sources.path.loc[i]
         try:
             json_data = read_csaf_file(file_path)
@@ -166,8 +166,8 @@ def process_csaf_sources(csaf_sources: pd.DataFrame):
 
 def get_url_from_csaf(d, path):
     '''Extract url from CSAf file.'''
-    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogStyle(formating)
+    formatting = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
+    log = LogStyle(formatting)
     try:
         for ref in d['document']['references']:
             if ref.get('url', '').endswith('.json'):
