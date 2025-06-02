@@ -1,6 +1,6 @@
 # String-Atlas
 
-> For normalisation of input data the following files are provided. They are used for the netbox plugin [DDDC](https://github.com/DINA-community/DDDC-Netbox-plugin) and for the intented CSAF Handler.
+> For normalisation of input data the following files are provided. They are used for the netbox plugin [DDDC](https://github.com/DINA-community/DDDC-Netbox-plugin) and for the intended CSAF Handler.
 >
 > :exclamation: This is a developing state at the moment and not ready to use.
 
@@ -76,7 +76,7 @@ There are some packages that have to be installed by the user, in order to use s
 
 ## Contribution
 
-The `string_normalizaton.py` and `process_csaf_files.py` were set up by Benjamin Wensky.
+The `string_normalization.py` and `process_csaf_files.py` were set up by Benjamin Wensky.
 
 ## Dependencies
 
@@ -86,6 +86,6 @@ Some functions will need specific data for string processing. Those can be found
 
 The software was developed on behalf of the [BSI](https://www.bsi.bund.de) \(Federal Office for Information Security\)
 
-Copyright &copy; 2024 by DINA-Community Apache 2.0 License. [See License](/LICENSE)
+Copyright &copy; 2024-2025 by DINA-Community Apache 2.0 License. [See License](/LICENSE)
 
 [fig_flow_new]: ./images/Cleansing.svg
