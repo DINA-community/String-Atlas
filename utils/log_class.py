@@ -98,7 +98,7 @@ class LogStyle:
                                level=base['log_level'])
 
 def log_test(module:str="unknown", filename:str = "unknown", delete:bool = False):
-    """Test the log function. Provide module name like __name__ abd filename as 
+    """Test the log function. Provide module name like __name__ and filename as 
     well as if the existing log files shall be removed."""
     if delete:
         path = os.path.join(os.getcwd(), "logs")
