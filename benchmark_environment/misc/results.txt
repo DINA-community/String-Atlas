@@ -1,0 +1,7 @@
+Test – Lexical errors - 95 from 115 cases succeeded
+Test – Different Spelling - 70 from 75 cases succeeded
+Test – Format errors - 15 from 15 cases succeeded
+Test - Format errors - 5 from 5 cases succeeded
+Test - Placeholder - 15 from 25 cases succeeded
+following suggestions are not matched:
+{'SIMATIC S7-300', 'SIMATIC S7-1200', 'SIMATIC S7-200'}

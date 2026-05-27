@@ -1,0 +1,317 @@
+{
+  "global": {
+    "csaf_files": "/app/resources/CSAF/csaf_files",
+    "predefined_columns": {
+      "source_path": "config.json",
+      "json_field": "df_columns -> predefined_columns"
+    }
+  },
+  "fields": {
+    "mac": {
+      "name": "mac",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "mac"
+            }
+          },
+          "score_weight": 1.0
+        },
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[:]?){5}([0-9A-Fa-f]{2}){1}"
+          },
+          "score_weight": 1.0
+        },
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[\\-\\.]?){6}"
+          },
+          "score_weight": 0.8
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "ip_address": {
+      "name": "ip_address",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "ip_address"
+            }
+          },
+          "score_weight": 1.0
+        },
+        {
+          "matcher": "ip",
+          "params": {},
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "average"
+    },
+    "oui": {
+      "name": "oui",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "oui"
+            }
+          },
+          "score_weight": 1.0
+        },
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[:]){2}([0-9A-Fa-f]{2}){1}"
+          },
+          "score_weight": 1.0
+        },
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[\\-\\.]?){3}"
+          },
+          "score_weight": 0.8
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "source_port": {
+      "name": "source_port",
+      "scoring": [
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "(?:TCP\\s*\\d{1,5}|\\\\d{1,5}\\s*TCP)"
+          },
+          "score_weight": 0.5
+        },
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "source_port"
+            }
+          },
+          "score_weight": 0.5
+        }
+      ],
+      "score_rating": "average"
+    },
+    "source":{
+      "name": "source",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "source"
+            }
+          },
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "destination_port": {
+      "name": "destination_port",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "destination_port"
+            }
+          },
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "description": {
+      "name": "description",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "description"
+            }
+          },
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "port": {
+      "name": "port",
+      "scoring": [
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[:]?){5}([0-9A-Fa-f]{2}){1}"
+          },
+          "score_weight": 1.0,
+          "multiple": "True"
+        },
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[\\-\\.]?){6}"
+          },
+          "score_weight": 0.8
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "vendor": {
+      "name": "vendor",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "vendor"
+            }
+          },
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "role": {
+      "name": "role",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "role"
+            }
+          },
+          "score_weight": 1.0
+        }
+      ]
+    },
+    "product_name": {
+      "name": "product_name",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "product_name"
+            }
+          },
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "product_family": {
+      "name": "product_family",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "product_family"
+            }
+          },
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "device_family": {
+      "name": "device_family",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "True",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "device_family"
+            }
+          },
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "role2": {
+      "name": "role",
+      "scoring": [
+        {
+          "matcher": "word_of_bag",
+          "params": {
+            "match_type": "any",
+            "only_header": "False",
+            "source": {
+              "source_type": "file",
+              "source_path": "/app/resources/word_of_bags.json",
+              "json_field": "role_values"
+            }
+          },
+          "score_weight": 1.0
+        }
+      ]
+    }
+  }
+}

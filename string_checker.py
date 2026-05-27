@@ -1,9 +1,8 @@
 import pprint
-import os
 import pandas as pd
 from spellchecker import SpellChecker
-from utils.string_helperfunctions import find_file
-
+from string_helperfunctions import find_file
+import os
 # NOTE: The following definitions are used by default and can be customized if changes are made to the regex collection or corpus.
 
 # Default path to corpus files for loading custom words.

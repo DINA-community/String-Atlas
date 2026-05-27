@@ -1,0 +1,300 @@
+{
+  "US": [
+    {
+      "short_form": "LLC",
+      "full_form": "Limited Liability Company"
+    },
+    {
+      "short_form": "LLC",
+      "full_form": "Limited"
+    },
+    {
+      "short_form": "Inc.",
+      "full_form": "Incorporated"
+    },
+    {
+      "short_form": "Corp.",
+      "full_form": "Corporation"
+    },
+    {
+      "short_form": "Co",
+      "full_form": "Corporation"
+    },
+    {
+      "short_form": "CO",
+      "full_form": "Corporation"
+    },
+    {
+      "short_form": "co",
+      "full_form": "Corporation"
+    },
+    {
+      "short_form": "LP",
+      "full_form": "Limited Partnership"
+    },
+    {
+      "short_form": "LLP",
+      "full_form": "Limited Liability Partnership"
+    },
+    {
+      "short_form": "S-Corp",
+      "full_form": "S Corporation"
+    },
+    {
+      "short_form": "C-Corp",
+      "full_form": "C Corporation"
+    },
+    {
+      "short_form": "PLLC",
+      "full_form": "Professional Limited Liability Company"
+    },
+    {
+      "short_form": "PC",
+      "full_form": "Professional Corporation"
+    },
+    {
+      "short_form": "SP",
+      "full_form": "Sole Proprietorship"
+    },
+    {
+      "short_form": "GP",
+      "full_form": "General Partnership"
+    }
+  ],
+  "UK": [
+    {
+      "short_form": "Ltd.",
+      "full_form": "Private Limited Company"
+    },
+    {
+      "short_form": "PLC",
+      "full_form": "Public Limited Company"
+    },
+    {
+      "short_form": "LLP",
+      "full_form": "Limited Liability Partnership"
+    },
+    {
+      "short_form": "CIC",
+      "full_form": "Community Interest Company"
+    },
+    {
+      "short_form": "Sole Trader",
+      "full_form": "Sole Trader"
+    },
+    {
+      "short_form": "Unlimited",
+      "full_form": "Unlimited Company"
+    },
+    {
+      "short_form": "GmbH",
+      "full_form": "Gesellschaft mit beschränkter Haftung"
+    },
+    {
+      "short_form": "RSL",
+      "full_form": "Registered Society"
+    },
+    {
+      "short_form": "IPS",
+      "full_form": "Industrial and Provident Society"
+    },
+    {
+      "short_form": "SCIO",
+      "full_form": "Scottish Charitable Incorporated Organisation"
+    }
+  ],
+  "Germany": [
+    {
+      "short_form": "GmbH",
+      "full_form": "Gesellschaft mit beschränkter Haftung"
+    },
+    {
+      "short_form": "GmbH &",
+      "full_form": "Gesellschaft mit beschränkter Haftung"
+    },
+    {
+      "short_form": "AG",
+      "full_form": "Aktiengesellschaft"
+    },
+    {
+      "short_form": "KG",
+      "full_form": "Kommanditgesellschaft"
+    },
+    {
+      "short_form": "OHG",
+      "full_form": "Offene Handelsgesellschaft"
+    },
+    {
+      "short_form": "GbR",
+      "full_form": "Gesellschaft bürgerlichen Rechts"
+    },
+    {
+      "short_form": "e.V.",
+      "full_form": "eingetragener Verein"
+    },
+    {
+      "short_form": "UG (haftungsbeschränkt)",
+      "full_form": "Unternehmergesellschaft (haftungsbeschränkt)"
+    },
+    {
+      "short_form": "UG",
+      "full_form": "Unternehmergesellschaft"
+    },
+    {
+      "short_form": "eG",
+      "full_form": "eingetragene Genossenschaft"
+    },
+    {
+      "short_form": "PartG",
+      "full_form": "Partnerschaftsgesellschaft"
+    },
+    {
+      "short_form": "PartGmbB",
+      "full_form": "Partnerschaftsgesellschaft mit beschränkter Berufshaftung"
+    },
+    {
+      "short_form": "KGaA",
+      "full_form": "Kommanditgesellschaft auf Aktien"
+    },
+    {
+      "short_form": "SE",
+      "full_form": "Societas Europaea"
+    },
+    {
+      "short_form": "Stiftung",
+      "full_form": "Stiftung"
+    },
+    {
+      "short_form": "e.K.",
+      "full_form": "eingetragener Kaufmann"
+    },
+    {
+      "short_form": "GmbH & Co. KG",
+      "full_form": "Gesellschaft mit beschränkter Haftung & Compagnie Kommanditgesellschaft"
+    },
+    {
+      "short_form": "AG & Co. KG",
+      "full_form": "Aktiengesellschaft & Compagnie Kommanditgesellschaft"
+    },
+    {
+      "short_form": "GmbH & Co. KGaA",
+      "full_form": "Gesellschaft mit beschränkter Haftung & Compagnie Kommanditgesellschaft auf Aktien"
+    },
+    {
+      "short_form": "AG & Co. KGaA",
+      "full_form": "Aktiengesellschaft & Compagnie Kommanditgesellschaft auf Aktien"
+    }
+  ],
+  "France": [
+    {
+      "short_form": "SARL",
+      "full_form": "Société à Responsabilité Limitée"
+    },
+    {
+      "short_form": "EURL",
+      "full_form": "Entreprise Unipersonnelle à Responsabilité Limitée"
+    },
+    {
+      "short_form": "SA",
+      "full_form": "Société Anonyme"
+    },
+    {
+      "short_form": "SAS",
+      "full_form": "Société par Actions Simplifiée"
+    },
+    {
+      "short_form": "SASU",
+      "full_form": "Société par Actions Simplifiée Unipersonnelle"
+    },
+    {
+      "short_form": "SNC",
+      "full_form": "Société en Nom Collectif"
+    },
+    {
+      "short_form": "SCI",
+      "full_form": "Société Civile Immobilière"
+    },
+    {
+      "short_form": "SCOP",
+      "full_form": "Société Coopérative de Production"
+    },
+    {
+      "short_form": "GIE",
+      "full_form": "Groupement d'Intérêt Économique"
+    }
+  ],
+  "Taiwan": [
+    {
+      "short_form": "Ltd.",
+      "full_form": "Limited Company"
+    },
+    {
+      "short_form": "Co., Ltd.",
+      "full_form": "Company Limited"
+    },
+    {
+      "short_form": "PLC",
+      "full_form": "Public Limited Company"
+    },
+    {
+      "short_form": "JV",
+      "full_form": "Joint Venture"
+    }
+  ],
+  "China": [
+    {
+      "short_form": "WFOE",
+      "full_form": "Wholly Foreign-Owned Enterprise"
+    },
+    {
+      "short_form": "JV",
+      "full_form": "Joint Venture"
+    },
+    {
+      "short_form": "SOE",
+      "full_form": "State-Owned Enterprise"
+    },
+    {
+      "short_form": "LLC",
+      "full_form": "Limited Liability Company"
+    },
+    {
+      "short_form": "Co., Ltd.",
+      "full_form": "Company Limited"
+    }
+  ],
+   "Singapore": [
+    {
+      "short_form": "Pte. Ltd.",
+      "full_form": "Private Limited Company"
+    },
+    {
+      "short_form": "Ltd.",
+      "full_form": "Public Limited Company"
+    },
+    {
+      "short_form": "LLP",
+      "full_form": "Limited Liability Partnership"
+    },
+    {
+      "short_form": "LP",
+      "full_form": "Limited Partnership"
+    },
+    {
+      "short_form": "Sole Proprietorship",
+      "full_form": "Sole Proprietorship"
+    },
+    {
+      "short_form": "Public Company Limited by Guarantee",
+      "full_form": "Public Company Limited by Guarantee"
+    },
+    {
+      "short_form": "Branch",
+      "full_form": "Branch of a Foreign Company"
+    },
+    {
+      "short_form": "Representative Office",
+      "full_form": "Representative Office of a Foreign Company"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+Bei "{\n \"token\": \"SIMATIC S7-1200\"\n\t\n}"
+
+Gibt es keine Treffer. Konkret nur bei "1214FC",
+
+Bei "S7-1200" gibt es mehrfachtreffer, aber zu erst kommt SIPLUS. ab wieviel ist schluss.
+
+
+{
+  "vendor": "Siemens",
+  "product_type": "SIMATIC S7-1200 CPU 1214FC DC/DC/DC ( 6ES7214-1AF40-0XB0",
+  "meta_info": {
+    "group_len": [
+      null,
+      6,
+      null,
+      3,
+      3,
+      null,
+      18
+    ],
+    "group": [
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      true
+    ],
+    "annotations": [
+      [],
+      [
+        "unique"
+      ],
+      [],
+      [],
+      [
+        "unique",
+        "unique"
+      ],
+      [],
+      [
+        "unique"
+      ]
+    ],
+    "group_regex": [
+      "\\d\\{{1}}",
+      "^[A-Za-z]+$",
+      "\\d\\{{4}}",
+      "-",
+      "\\d\\{{1}}",
+      "^[A-Za-z]+$",
+      "\\d\\{{2}}",
+      "-",
+      "\\d\\{{1}}",
+      "XB",
+      "\\d\\{{1}}"
+    ],
+    "group_uuid": "4c227760-5c78-4ea8-9df7-d5be9a6150d5",
+    "whole_tokens": [
+      "SIMATIC",
+      "S7-1200",
+      "CPU",
+      "1214FC",
+      "DC/DC/DC",
+      "(",
+      "6ES7214-1AF40-0XB0"
+    ],
+    "group_ids": [
+      0,
+      5,
+      null,
+      1,
+      1,
+      null,
+      1
+    ],
+    "group_regexes": [
+      null,
+      [
+        "S",
+        "\\d\\{{1}}",
+        "-",
+        "-",
+        "safe"
+      ],
+      null,
+      [
+        "\\d\\{{4}}",
+        "FC"
+      ],
+      [
+        "DC",
+        "/",
+        "DC",
+        "/",
+        "^[A-Za-z]+$"
+      ],
+      null,
+      [
+        "\\d\\{{1}}",
+        "^[A-Za-z]+$",
+        "\\d\\{{4}}",
+        "-",
+        "\\d\\{{1}}",
+        "^[A-Za-z]+$",
+        "\\d\\{{2}}",
+        "-",
+        "\\d\\{{1}}",
+        "XB",
+        "\\d\\{{1}}"
+      ]
+    ],
+    "vendor": "Siemens",
+    "types": [
+      "brand",
+      "series_and_sub_series",
+      "feature_series",
+      "feature_group",
+      "feature_group",
+      "parentheses_start",
+      "parentheses_feature_group"
+    ]
+  }
+}

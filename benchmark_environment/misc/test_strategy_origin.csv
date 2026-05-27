@@ -1,0 +1,34 @@
+Category,Subcategory,SIMATIC S7-1500,ET200,SIMATIC S7-1500,SIMATIC S7-1200
+Product,,SIMATIC S7-1500,ET200,SIMATIC S7-1500,SIMATIC S7-1200
+Vendor,,Siemens,Siemens,Siemens,Siemens
+Type,,Product,Product,Product,Product
+Ground Truth (unclean),,"contains(""SIMATIC S7-1500"");SIMATIC S7-1500 CPU 1510SP F-1 PN (6ES7510-1SJ00-0AB0); SIMATIC S7-1500; SIMATIC S7-1500 CPU 1510SP; ","contains(""SIMATIC ET200"");SIMATIC ET200","contains(""SIMATIC S7-1500"");SIMATIC S7-1500 CPU 1510SP F-1 PN (6ES7510-1SJ00-0AB0); SIMATIC S7-1500; SIMATIC S7-1500 CPU 1510SP; ","contains(""SIMATIC S7-1200"");SIMATIC S7-1200"
+Ground Truth (clean),,SIMATIC S7-1500;S7-1500,SIMATIC ET200;ET200,SIMATIC S7-1500;S7-1500,SIMATIC S7-1200;S7-1200
+Test – Lexical errors,Lexical errors – wrong letter typing,SIMATIC D7-1500;SINATIC S7-1500;SIMATID S7-1500;SIMÄTIC S7-1500,,,
+Test – Lexical errors,Lexical errors – lower and uppercase,sIMATIC S7-1500;sImAIC S7-1500;sIMATIC s7-1500;simatic s7-1500,,,
+Test – Lexical errors,Lexical errors – insertion redundant characters,SIMATICC S7-1500;SIIMATIC S7-1500,,,
+Test – Lexical errors,Lexical errors – insertion additional characters,SIMATICA S7-1500;SIMASTIC S7-1500,,,
+Test – Lexical errors,Lexical errors – deletion characters,SIMATC S7 1500;SIMATIC S7 150;SIMATIC S-1500,,,
+Test – Lexical errors,Lexical errors – transposed letters ,SIMATCI S7 1500;SIAMTIC S7 1500;SIMATIC 7S-1500,,,
+Test – Lexical errors,Lexical errors – missing token,SIMATIC 1500; S7-1500; SIMATIC S7,,,
+Test – Lexical errors,Lexical errors – number alpha mix,SIMATIC S7-15O0;SIMATIC S7-150O,,,
+Test – Different Spelling,different spelling – special chars – whitespace replacement,SIMATIC S7 1500,,,
+Test – Different Spelling,different spelling – special chars – removed,SIMATIC S71500,,,
+Test – Different Spelling,different spelling – whitespaces – removed between token,SIMATIC S7-1500,,,
+Test – Different Spelling,different spelling – whitespaces – replacement with special char,SIMATIC-S7-1500,,,
+Test – Different Spelling,different spelling – vendor,SIEMENS SIMATIC S7-1500;SIEMENS S7-1500;SIEMENS SIMATIC 1500,,,
+Test – Different Spelling,different spelling – lower and uppercase,Siemens SIMATIC S7-1500; Siemens Simatic S7-1500,,,
+Test – Different Spelling,different spelling – synonyms,Siemens Steuerungssystem S7-1500; Siemens PLC S7-1500,,,
+Test – Different Spelling,different spelling – abbreviations,Siem. SIMATIC S7-1500;,,,
+Test – Different Spelling,different spelling – wrong semantic,ET S7-1500,,,
+Test – Format errors,format errors – underscore,SIMATIC_S7_1500;SIMATIC-S7_1500;SIMATIC_S7-1500,,,
+Test – Format errors,format errors – multiple products in row,SKIP,,,
+Test - Format errors,format error - transposed token,S7-1500 SIMATIC,,,
+Test - Format errors,format error – whitespaces – special char mixed,,,,
+Test – Different Spelling,different spelling - acronym,"",,,Siemens SIMATIC S7-1200 PLC
+Test – Different Spelling,different spelling - full form for acronym,,,,Siemens SIMATIC S7-1200 Programmable Logic Controller
+Test - Placeholder,placeholder - content word,S7-1500 SIMATIC,,,
+Test - Placeholder,placeholder - functional,S7-1500 brand SIMATIC,,,
+Test - Placeholder,placeholder - two content words,S7-1500 SIMATIC CPU PLC,,,
+Test - Placeholder,placeholder - long content with unique,SIMATIC S7-1500 CPU 1511TF-1 PN ( 6ES7511-1UK01-0AB0),,,
+Test - Placeholder,placeholder - long content,S7-1500 SIMATIC CPU Programmable Logic Controller,,,

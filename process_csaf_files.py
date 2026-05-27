@@ -1,17 +1,42 @@
-"""Module provides functions to look at CSAf file for corpus and for matching."""
+"""Module provides functions to look at CSAf file for courpus and for matching."""
 
 import json
 import os
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
-from utils.string_helperfunctions import read_json_file, find_file
-from utils.string_helperfunctions import LogStyle
+from string_helperfunctions import read_json_file, find_file
+from string_helperfunctions import LogHandler
 
 # Encoding
 ENCODING = "utf-8"
 
+def create_folders_set(folders:str):
+    allowed_folders = set()
+    for folder in folders.split(','):
+        if '-' in folder:
+            start, end = folder.split('-')
+            for folder_num in range(int(start), int(end) + 1):
+                allowed_folders.add(str(folder_num))
+            allowed_folders.update()
+        else:
+            allowed_folders.add(str(folder))
+        allowed_folders.add("csaf_files")
+        allowed_folders.add("OT")
+        allowed_folders.add("white")
+    return allowed_folders
+
+def is_folder_allowed(file_path: Path, allowed_folders: set[str]) -> bool:
+    """
+    check if parent folder is allowed
+    """
+    last_folder = file_path.parent.name
+    return last_folder in allowed_folders
+
+
 # def process_json_files_in_directory(directory_path):
-def get_csaf_sources(path_directory: str):
+def get_csaf_sources(path_directory: str, allowed_folders: set[str] = None):
     '''Get paths to json source files from a directory and check if it is a CSAF one.
 
     Parameter:
@@ -20,8 +45,8 @@ def get_csaf_sources(path_directory: str):
     Return:
         pd.Dataframe with all CSAF documents found with columns path and file name
     '''
-    formatting = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogStyle(formatting)
+    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
+    log = LogHandler(formating)
     file_list = []
     for source in [path_directory]:
         source = os.path.normpath(source)
@@ -30,12 +55,16 @@ def get_csaf_sources(path_directory: str):
                 if file.endswith(".json") is False:
                     log.logger.debug('Filepath %s is not a json file. File is excluded.', file)
                     continue
+
+                file_path = os.path.join(root, file)
+                if allowed_folders is not None and not is_folder_allowed(Path(file_path), allowed_folders):
+                    continue
+
                 try:
-                    file_path = os.path.join(root, file)
                     with open(file_path, 'r', encoding=ENCODING) as filename:
                         #os.path.getsize(fullpathhere) > 0
                         if os.stat(file_path).st_size == 0:
-                            log.logger.debug('Filepath %s lead to a empty json file. '
+                            log.logger.debug('Filepath %s lead to a emtpy json file. '
                                              'File is excluded.', file_path)
                             continue
                         try:
@@ -60,16 +89,19 @@ def get_csaf_sources(path_directory: str):
                     raise FileNotFoundError("Could not find the file at: " + file_path) from e
     return pd.DataFrame(file_list, columns=['path', 'file'])
 
+def merge_dataframes(df1, df2):
+    return pd.concat([df1, df2], axis=0, ignore_index=True, sort=False)
+
 def read_csaf_file(file_path):
     '''Read json file of a CSAF document.'''
-    formatting = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogStyle(formatting)
+    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
+    log = LogHandler(formating)
     try:
         with open(file_path, 'r', encoding=ENCODING) as filename:
             #os.path.getsize(fullpathhere) > 0
             if os.stat(file_path).st_size == 0:
-                log.logger.warning('Filepath %s lead to a empty json file.'
-                                   ' File is excluded.', file_path)
+                log.logger.warning('Filepath %s lead to a emtpy json file.'
+                                   ' File isexcluded.', file_path)
             try:
                 dummy = json.load(filename)
             except json.decoder.JSONDecodeError as e:
@@ -95,8 +127,13 @@ def read_csaf_file(file_path):
         log.logger.warning("Could not find the file at: %s", file_path)
 
 
+def get_csaf_document_id(json_data):
+    '''Extract CSAF document tracking id.'''
+    return json_data.get('document', {}).get('tracking', {}).get('id', '')
+
+
 def flatten_tree_data(json_data, input_type="product_tree"):
-    '''Separate in two different structures of CSAF files.'''
+    '''Separate in two different structes of CSAF files.'''
     tree = json_data.get(input_type, {})
     # if full product names instead of branches
     if 'full_product_names' in tree:
@@ -133,25 +170,27 @@ def flatten_branch(branch, parent_attributes):
 
 def process_csaf_sources(csaf_sources: pd.DataFrame):
     '''Process the csaf json list'''
-    formatting = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogStyle(formatting)
+    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
+    log = LogHandler(formating)
     combined_df = pd.DataFrame()
     predefined_columns = read_json_file(find_file('config.json')
                                         )['df_columns']['predefined_columns']
-    fac = np.round(len(csaf_sources) / 30,0) + 1
+    fac = np.round(len(csaf_sources) / 30, 0) + 1
     for i in range(len(csaf_sources)):
         if i > 0:
             if i % fac == 0:
-                print(f"{np.round(i / len(csaf_sources) * 100, 2)}% of files processed.")
+                print(f"{np.round(i / len(csaf_sources) * 100, 2)}% eingelesen")
         file_path = csaf_sources.path.loc[i]
         try:
             json_data = read_csaf_file(file_path)
             if json_data is None:
-                log.logger.info("Filepath contains no CSAF data. %s", file_path)
+                log.logger.info("Filepath contain no CSAF data. %s", file_path)
                 continue
             df_flattened = flatten_tree_data(json_data, 'product_tree')
+            df_flattened['path'] = file_path
             # Lege fehlende Spalten an
             df_flattened['data_source'] = get_url_from_csaf(json_data, file_path)
+            df_flattened['csaf_document_id'] = get_csaf_document_id(json_data)
             for fix_column in predefined_columns:
                 if fix_column not in df_flattened.columns:
                     df_flattened[fix_column] = None
@@ -160,14 +199,14 @@ def process_csaf_sources(csaf_sources: pd.DataFrame):
             # df_flattened = df_flattened[predefined_columns]
             combined_df = pd.concat([combined_df, df_flattened], ignore_index=True)
         except json.JSONDecodeError as e:
-            log.logger.warning(" Error by reading the file %s %s", file_path, e)
+            log.logger.warning("Fehler beim Parsen der Datei %s %s", file_path, e)
     return combined_df
 
 
 def get_url_from_csaf(d, path):
     '''Extract url from CSAf file.'''
-    formatting = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogStyle(formatting)
+    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
+    log = LogHandler(formating)
     try:
         for ref in d['document']['references']:
             if ref.get('url', '').endswith('.json'):
@@ -175,6 +214,7 @@ def get_url_from_csaf(d, path):
     except KeyError as e:
         log.logger.info("%s: No url for json document provided in %s", e, path)
         return 'missing'
+
 
 if __name__ == "__main__":
     print('Call process_csaf_sources(get_csaf_sources(<PATH_directory>))')
