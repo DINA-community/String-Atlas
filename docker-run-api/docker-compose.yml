@@ -1,0 +1,79 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: ./docker-run-api/Dockerfile
+    ports:
+      - "127.0.0.1:5002:5000"
+    environment:
+      - QDRANT_HOST=qdrant2026
+      - QDRANT_PORT=6333
+      - REDIS_HOST=redis2026
+      - REDIS_PORT=6379
+      - FLASK_ENV=development
+      - CSAF=/app/resources/CSAF
+      - CSAF_FORCE_REINIT=False
+      - CSAF_FOLDERS=2010-2026
+      - PLACEHOLDER_KEYWORDS_FILE=/app/config/placeholder_keywords.toml
+      #- CSAF_VENDORS=Siemens,Schneider Electric, Rockwell Automation
+      - OUI_FILE=/app/resources/latest_oui_lookup.json
+      - LEGAL_FILE=/app/resources/legal_entities.json
+      - DOCKER_REDIS_HOSTNAME=redis
+      - DOCKER_REDIS_PORT=6379
+      - DOCKER_REDIS_DATABASE=0
+    volumes:
+      - ../config/placeholder_keywords.toml:/app/config/placeholder_keywords.toml:Z
+      - ../api_client:/app/api_client:Z
+      - ../header_field_mapper:/app/header_field_mapper:Z
+      - ../normalizer:/app/normalizer:Z
+      - ../string_miner:/app/string_miner:Z
+      - ../matcher:/app/matcher:Z
+      - ../api_server.py:/app/app.py:Z
+      - ../resources:/app/resources:Z
+      - ../process_csaf_files.py:/app/process_csaf_files.py:Z
+    networks:
+      - api-network
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: "redis/redis-stack:latest"
+    container_name: "redis2026"
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_search_data:/data
+    command: redis-server --appendonly yes --protected-mode no --loadmodule /opt/redis-stack/lib/redisearch.so --loadmodule /opt/redis-stack/lib/rejson.so
+    networks:
+        - api-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+
+  qdrant:
+    environment:
+      - QDRANT__TELEMETRY_DISABLED=true
+    image: qdrant/qdrant:latest
+    container_name: qdrant2026
+    ports:
+      - "127.0.0.1:6337:6333"   # REST API
+      - "127.0.0.1:6338:6334"   # gRPC (optional)
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: always
+    networks:
+      - api-network
+
+volumes:
+  qdrant_data:
+  redis_search_data:
+    driver: local
+
+networks:
+  api-network:
+    driver: bridge
