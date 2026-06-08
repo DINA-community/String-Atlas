@@ -5,7 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
-
+benchmark_environment/cli_environment/details*
+benchmark_environment/cli_environment/results*
 # Distribution / packaging
 .Python
 build/
@@ -14,8 +15,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-!matcher/lib
 lib64/
 parts/
 sdist/
@@ -26,6 +25,10 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+code_process.log
+test_environment/.~lock.test_strategy.csv#
+benchmark_environment/*.csv
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -130,6 +133,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+test/
 dev/
 df_*
 .vscode/
@@ -171,3 +175,37 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+
+checker/
+test_upload/*
+redis/Redis-JSON-Module.md
+resources/CSAF
+archiv_for_thesis/
+matcher/tests/test_files/a.xlsx
+/.idea/
+/result_api_system_test.txt
+/latest_oui_lookup.json
+/first_system_test.txt
+/word_of_bags.json
+/config.json
+/CSAF2/
+/resources/a.xlsx
+/matcher/tests/__init__.py
+/test_environment/.~lock.output.xlsx#
+/test_environment/output.xlsx
+/test_environment/test_strategy_try.csv
+/uv.lock
+/benchmark_environment/system_*.csv
+/benchmark_environment/localtest.sql
+/benchmark_environment/output.xlsx
+benchmark_environment/results
+benchmark_environment/*.svg
+test_environment/.~lock.test_strategy.csv#
+benchmark_environment/*.csv
+!test_strategy.csv
+!benchmark_selection.csv
+benchmark_selection.txt
+issues.md
+benchmark_environment/benchmark_strategy_resulter.py
+

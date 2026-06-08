@@ -5,28 +5,16 @@ import time
 from normalizer.corpus_manager import CorpusManager
 from normalizer.database.csaf_database_helper import CSAFDataBaseHelper
 from normalizer.database.redis_csaf_database_helper import RedisCSAFDatabaseHelper
+from normalizer.helper.feature_extractor import FeatureExtractor
 from normalizer.initialise.csaf_dataframe import df_filtered
-from string_miner.strategies.legal_string_miner_strategy import VendorAndLegalStringMinerStrategy
 from string_miner.strategies.physical_unit_string_miner import PhysicalUnitStringMinerStrategy
 from string_miner.string_miner import StringMiner
 
-"""
-# TODO will be corrected later in TextMiner2026
-KEY_FIXES = [
-    "vendor___Siemensbrand__S7-1500",
-    "vendor___Siemensbrand__PCS",
-    "vendor___Siemensbrand__CPU",
-]
-KEY_FIX_PATTERNS = [
-    "vendor*Siemensbrand*S7-1500",
-    "vendor*Siemensbrand*PCS",
-    "vendor*Siemensbrand*CPU",
-]
-"""
+print("Initialising ========", flush=True)
 
-print("Initialising ========")
 # CSAF path environment variable. folder that contains csaf_files from CISA
 CSAF_PATH = os.getenv('CSAF')
+CSAF_REGEX: bool = os.getenv("CSAF_REGEX_MODE", "false").lower() in ("1", "true", "yes", "on")
 CSAF_FOLDERS: str = os.getenv('CSAF_FOLDERS', 'All')
 CSAF_VENDORS: str = str(os.getenv('CSAF_VENDORS', 'All'))
 OUI_FILE = os.getenv('OUI_FILE')
@@ -51,43 +39,23 @@ def is_csaf_initialised(database_helper: CSAFDataBaseHelper, key):
     #return last_initialised >= one_month_ago
     return True
 
-
-def clean_database(database_helper: CSAFDataBaseHelper, corpus_config:{}, df: pandas.DataFrame):
-    corp_manager = CorpusManager(config=corpus_config, corpus_data=df)
-    corp_manager.pre_process_filter()
-
-
-    corp_manager.after_clean_database(database_helper=database_helper)
-
-def create_database(database_helper: CSAFDataBaseHelper, corpus_config:{}, df_corpus: pandas.DataFrame):
+def create_database(database_helper: CSAFDataBaseHelper, corpus_config:{}, df_corpus: pandas.DataFrame, regex:bool=False):
     string_miner = StringMiner()
-    physical_strategy = PhysicalUnitStringMinerStrategy()
-    # for approaches in features
-    #vendor_legal_strategy = VendorAndLegalStringMinerStrategy(legal_entities_file_name=LEGAL_FILE, oui_lookup_file_name=OUI_FILE, csaf_vendors=csaf_vendors)
-
-    string_miner.add_annotate_strategy(physical_strategy)
-    # string_miner.add_strategy(vendor_legal_strategy)
 
     corp_manager = CorpusManager(config=corpus_config, corpus_data=df_corpus, string_miner=string_miner)
     corp_manager.bl_extract()
     corp_manager.save_vendors_and_brands(database_helper=database_helper)
     corp_manager.save_oui(database_helper=database_helper)
-    corp_manager.save_product_type_and_regex(database_helper=database_helper)
+    corp_manager.save_product_type_and_regex(database_helper=database_helper, regex=regex)
 
-"""
+    import matcher.initialise.qadrant_collections
+    import matcher.initialise.create_lookup_tables
 
-def delete_key_fixes(redis_client: redis.Redis):
-    keys_to_delete = set(KEY_FIXES)
-    for pattern in KEY_FIX_PATTERNS:
-        keys_to_delete.update(redis_client.scan_iter(match=pattern, count=1000))
+    physical_strategy = PhysicalUnitStringMinerStrategy()
+    string_miner.add_annotate_strategy(physical_strategy)
 
-    if not keys_to_delete:
-        return 0
-
-    deleted_count = redis_client.delete(*keys_to_delete)
-    print(f"Deleted CSAF key fixes: {deleted_count}")
-    return deleted_count
-"""
+    feature_extractor = FeatureExtractor(string_miner=string_miner)
+    feature_extractor.extract_features(df_filtered)
 
 
 r_db = redis.Redis(host=docker_redis_hostname, port=docker_redis_port, db=docker_redis_database)
@@ -96,8 +64,6 @@ database_helper = RedisCSAFDatabaseHelper(database=r_db)
 csaf_force_reinit = str(os.getenv('CSAF_FORCE_REINIT', 'False'))
 if is_csaf_initialised(database_helper=database_helper, key=KEY_CSAF) and (csaf_force_reinit != 'True'):
     print("CSAF corpus is initialized")
-    # TODO remove
-    # delete_key_fixes(r_db)
     exit(0)
 
 if CSAF_PATH is None or CSAF_PATH.strip() == '':
@@ -110,8 +76,8 @@ start_time = time.time()
 corpus_c = {'legal_entities_file_name': LEGAL_FILE, 'oui_lookup_file_name': OUI_FILE, 'vendors_used': CSAF_VENDORS}
 # reset database content
 r_db.flushall()
-create_database(database_helper=database_helper, corpus_config=corpus_c, df_corpus=df_filtered)
-clean_database(database_helper=database_helper, corpus_config=corpus_c, df=df_filtered)
+create_database(database_helper=database_helper, corpus_config=corpus_c, df_corpus=df_filtered, regex=CSAF_REGEX)
+
 set_initial_csaf_files(database_helper=database_helper,key=KEY_CSAF)
 
 end_time = time.time()

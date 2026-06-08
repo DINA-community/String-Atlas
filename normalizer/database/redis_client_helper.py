@@ -126,15 +126,6 @@ def extract_rows_product_type(documents):
         tokens: list = meta.get("whole_tokens", doc.get("whole_tokens", []))
         types = meta.get("types", doc.get("types", []))
 
-
-        pos = 0
-        found = None
-        for token in tokens:
-            if token == "S7-1500":
-                found = pos
-                break
-            pos = pos + 1
-
         brand = []
         if "brand" in types:
             pos = 0

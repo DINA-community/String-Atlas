@@ -1,7 +1,7 @@
 from enum import Enum
 from matcher.lib.common import is_number
 from matcher.lib.lookup_table import PREFIX_TOKEN_VENDOR, PREFIX_TOKEN_BRAND, PREFIX_TOKEN_PRODUCT, \
-    PREFIX_TOKEN_PLACEHOLDER
+    PREFIX_TOKEN_PLACEHOLDER, PREFIX_TOKEN_UNIQUE
 from matcher.lib.lookup_client import TokenMarker
 from matcher.lib.token_enum import TokenSemanticEnum
 from matcher.match_strategy.match_strategy import MatchStrategy
@@ -109,11 +109,17 @@ class TokenMatcherDecision:
         self.tokens:list[str] = token_list
         self._initialise_tokens()
 
+    def has_found_product(self):
+        if TokenMarker.UNIQUE in self.entities:
+            return True
+
     def find(self, token_marker: TokenMarker):
         prefix_token = ''
         # TODO filter
         entity_filter: list[dict[str, str]] = []
-        if token_marker == TokenMarker.PLACEHOLDER:
+        if token_marker == TokenMarker.UNIQUE:
+            prefix_token = PREFIX_TOKEN_UNIQUE
+        elif token_marker == TokenMarker.PLACEHOLDER:
             prefix_token = PREFIX_TOKEN_PLACEHOLDER
         elif token_marker == TokenMarker.VENDOR:
             prefix_token = PREFIX_TOKEN_VENDOR
@@ -375,4 +381,6 @@ class TokenMatcherDecision:
                     break
 
     def get_result(self):
+        if TokenMarker.UNIQUE in self.entities:
+            self.entities[TokenMarker.PRODUCT_SUB_SERIES] = self.entities[TokenMarker.UNIQUE]
         return self.entities

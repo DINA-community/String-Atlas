@@ -6,13 +6,14 @@ from string_miner.string_type import StringType
 
 class StringMiner:
 
-    strategies = None
-    config:dict = None
-
-    def __init__(self, config={}):
-        self.strategies = []
-        self.config = config
-        # TODO default config erstellen, wenn keine übergeben wird
+    def __init__(self, config=None):
+        if config is None:
+            self.config = {}
+        else:
+            self.config: dict = config
+        self.strategies:list[StringMinerStrategy] = []
+        self.token_cache: dict[str, dict] = {}
+        self.token_compare_cache: dict[str, float] = {}
 
     def add_annotate_strategy(self, strategy: StringMinerStrategy):
         self.strategies.append(strategy)
@@ -30,9 +31,13 @@ class StringMiner:
                 highest_match_annotations = annotations
         return highest_match_types, highest_match_annotations
 
+
     def characterize(self, token: str):
 
         token = str(token)
+
+        if token in self.token_cache:
+            return self.token_cache[token]
 
         # TODO check if only character or digit
         # TODO sonderzeichen wie & etc.
@@ -85,9 +90,11 @@ class StringMiner:
                 token = token.rstrip(''.join(StringType.SPECIAL_CHARS_STRIP))
             full_regex = ''.join(segment_regex)
 
-        return {'nlp_type': 'ADJ', 'ern': '', 'type': current_type, 'value': token, 'special_chars': special_chars,
+        self.token_cache[token] = {'nlp_type': 'ADJ', 'ern': '', 'type': current_type, 'value': token, 'special_chars': special_chars,
                 'segments': segments, 'segment_types': segment_types, 'segment_regex': segment_regex,
                 'full_regex': full_regex}
+
+        return self.token_cache[token]
 
     # TODO Optimierung bei verschiedenen Längen und bei Alpha-Semgent Länge selbst, mehrere Regex anbieten
     def characteristic_group(self, token_group: []) -> []:
@@ -291,6 +298,18 @@ class StringMiner:
     # Noch keine Wortnachbarnanalyse -> es kan n sein das bei Text1  ein Wort ausgelassen wird und Text 2 länger hat, es aber ein Wort später kommt
     # feauture
     def _compare_token(self, character, character2, case):
+
+        value1 = character['value']
+        value2 = character2['value']
+
+        tokens = [value1, value2]
+        sorted_tokens = sorted(tokens)
+
+        token_compare_index = " ".join(sorted_tokens)
+        if token_compare_index in self.token_compare_cache:
+            return self.token_compare_cache[token_compare_index]
+
+
         # phase 1 vergleich -> kann auch vektorisiert werden
         # is segment position
         prefix_equal = 0
@@ -337,8 +356,7 @@ class StringMiner:
 
             index = index + 1
 
-        value1 = character['value']
-        value2 = character2['value']
+
         # same characters have more weight
         # semantisch zuerst ->
 
@@ -364,12 +382,15 @@ class StringMiner:
 
         # not at beginning, unprobability
         if prefix_equal == 0:  # TODO zwischen charactern überprüfen prefixe innerhalb des segments
-            if total_segment_types_equal == 0:  # totally different types
+            if total_segment_types_equal == 0:
+                self.token_compare_cache[token_compare_index] = 0# totally different types
                 return 0
             elif prefix_segment_types_equal > 0:  # same beginning but different Charaters AC-200 - BC-200
                 # not same start, but some same segments
+                self.token_compare_cache[token_compare_index] = 0.1
                 return 0.1
             else:
+                self.token_compare_cache[token_compare_index] = 0
                 return 0
         # beginning, very probability
         elif prefix_equal > 0:
@@ -384,11 +405,14 @@ class StringMiner:
                 # segment type kann danach gleich unterscheiden 'S7-200', 'S7-PLCSIM'
                 if prefix_equal < total_segment_min and character2['segment_types'][prefix_equal] == \
                         character['segment_types'][prefix_equal]:
+                    self.token_compare_cache[token_compare_index] = 1.0
                     return 1.0
                 else:
                     if total_segment_max - prefix_equal == 1:
+                        self.token_compare_cache[token_compare_index] = 0.3
                         return 0.3
                     # TODO folgecheck, kann auch keins mehr danach folgen
+                    self.token_compare_cache[token_compare_index] = 0.6
                     return 0.6  # todo z.b. nach gesamt varrianz bewerten, in mitte kann auch was auftreten. was dann am 3. Wort wieder gleich ist.
             elif check_pos < total_segment_min and character2['segment_types'][check_pos] == character['segment_types'][
                 check_pos]:  #ET200 -> ET400
@@ -397,12 +421,15 @@ class StringMiner:
                 measure1 = total_equal / total_segment_max
                 measure2 = prefix_equal / total_segment_max * 1.1
                 # todo hier noch formel nachbessern -> es ist hier viel wahrscheinlicher, außer  z.b. S7proEN S7proPN -> gehört nicht zu S7-400
-                return max(measure1, measure2)
+                self.token_compare_cache[token_compare_index] = max(measure1, measure2)
+                return self.token_compare_cache[token_compare_index]
 
             #elif total_segment_min < total_segment_max:
             elif prefix_segment_types_equal == total_segment_max:
+                self.token_compare_cache[token_compare_index] = 1.0
                 return 1.0
             else:  #gleiche segment anzahl oder weniger, hier unterscheiden ?
+                self.token_compare_cache[token_compare_index] = 0.0
                 minus = 0.0
                 # TODO parametrisieren für tokenvergleich
                 if (check_pos < len(character['segments']) and character['segment_types'][
@@ -416,6 +443,7 @@ class StringMiner:
                 measure2 = prefix_equal / total_segment_max * 1.1
                 measure1 = measure1 - minus
                 measure2 = measure2 - minus
-                return max(measure1, measure2)
+                self.token_compare_cache[token_compare_index] = max(measure1, measure2)
+                return self.token_compare_cache[token_compare_index]
 
 

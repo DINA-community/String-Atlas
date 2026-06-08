@@ -3,7 +3,12 @@ import re
 import pandas
 import uuid
 
+from numpy.testing.print_coercion_tables import print_new_cast_table
+
+from matcher.initialise.clients import redis_client
+from matcher.lib.lookup_table import redis_get_json
 from normalizer.database.csaf_database_helper import CSAFDataBaseHelper
+from normalizer.precleaner import PreCleaner
 # TODO für Text Miner auslagern
 
 # TODO remove later, just a test for comparing
@@ -17,129 +22,59 @@ from string_miner.string_type import StringType
 
 
 class CorpusManager:
-    # TODO in Text Mining verschieben
-    # TODO in Token charakteristics auslagern
-
-    corpus: DataFrameHelper = None
-    config = None
-
-    ngramm_result = None
-
-    string_miner = None
-
-    # dict: key= vendor:str, item = obj:VendorProductTree
-    product_trees:dict = None
-    csaf_vendors_extracted = None
-    legal_forms = None
-    oui_lookups :dict = None
-    oui_csaf_vendor_mapping :dict = None
-
-    # TODO in dataframe helper refactoren
-    ngramm_index = None
 
     def __init__(self, config, corpus_data: pandas.DataFrame, string_miner:StringMiner=None):
+        self.ngramm_index_by_vendor = {}
         self.config = config
-        self.string_miner = string_miner
-        self.corpus = DataFrameHelper(corpus_data)
-        self.product_trees = {}
+        self.string_miner:StringMiner|None = string_miner
+        self.corpus:DataFrameHelper = DataFrameHelper(corpus_data)
+        self.product_trees:dict = {}
         self.csaf_vendors_extracted = {}
         self.legal_forms = StringMinerHelper.normalize_legal_entities(legal_entities_file_name=config['legal_entities_file_name'])
         with open(config['oui_lookup_file_name'], 'r', encoding='utf-8') as oui_file:
            self.oui_lookups = json.load(oui_file)
-        self.oui_csaf_vendor_mapping = {}
+        self.oui_csaf_vendor_mapping:dict = {}
 
-    def save_product_type_and_regex(self, database_helper: CSAFDataBaseHelper):
+
+    def save_product_type_and_regex(self, database_helper: CSAFDataBaseHelper, regex:bool):
         for vendor in self.csaf_vendors_extracted:
-            self.product_trees[vendor].save_product_type_and_regex(database_helper=database_helper)
+            self.product_trees[vendor].save_product_type_and_regex(database_helper=database_helper, regex=regex)
 
-    def after_clean_database(self, database_helper: CSAFDataBaseHelper):
-        """
-        run after save_to_database() in initial mode
-        """
-        df = self.corpus.raw_load(store_key_src=self.corpus.DEFAULT_STORE_KEY)
-        df.loc[:, 'product_name'] = df['product_name'].str.replace(r'[)]', '', regex=True)
-        df.loc[:, 'product_name'] = df['product_name'].str.replace(r'[(]', '', regex=True)
-        df.loc[:, 'product_name'] = df['product_name'].str.replace(r'\s+', ' ', regex=True).str.strip()
-
-        # TODO vendor removement berücksichtigen, need vendor parse data for it, fetch from database
-
-        database_helper.clean_tokens(df=df)
 
     def bl_extract(self):
         self.pre_process_filter()
         self._bl_step_extract_csaf_vendors()
 
-        # CSAF_VENDOR_MAPPING MIT LERNOBJEKT das synonyme enthält
+        # TODO CSAF_VENDOR_MAPPING MIT LERNOBJEKT das synonyme enthält
         if self.config['vendors_used'] !='All':
             vendors_used = list(set(self.config['vendors_used'].split(',')))
             self.csaf_vendors_extracted = {k: v for k, v in self.csaf_vendors_extracted.items()
                                            if k in vendors_used}
-
         for vendor in self.csaf_vendors_extracted:
             self._bl_step_extract_brands(vendor)
+
 
     def bl_extract_by_vendor(self, vendor):
         self._bl_step_extract_brands(vendor)
 
+
     def pre_process_filter(self):
         # TODO sysiphos auslagern
         # plural -> versions. stemming soll alle varianten abdecken, Modules, variants
-        blacklist = ['family', 'software', 'Software', 'Process', 'and', 'Development', 'Evaluation Kits', 'for',
-                     'all', 'versions', 'version', 'variants', 'Modules', 'or', 'first', '<', '>', '<=', '>=', 'Series', 'relays', 'devices']
-        # TOOD incase sensitive noch machen. ist immer noch nicht draußen
 
-        # '/' führt zu fehler bei 'PN/TEST'
+        blacklist = ['family', 'process', 'and', 'for',
+                     'all', 'versions', 'version', 'variants', 'or', 'first', '<', '>', '<=', '>=', 'series', 'relays', 'devices']
+        blacklist = []
 
-        # leerweörter wie series -> variant, series kann aber noch semantisch hinweis geben . wird davor oder danach erwähnt ?  mehrzahl und plural
-        # "name": "EN100 Ethernet module IEC 61850 variant"
-        # vor allem am schluss entfernen
-
-        # TOOD hersteller rausbekommen
-        # Siemens AG -> Split Siemens AG
-        # CP ist eigener unterbaum -> soll bei SIMATIC CP eingehängt werden
-
-        # TODO mit SIMATIC anfangen -> 'IPC547G'[series_subseries - 29]
-        # TODO nächster Schritt: Gewichtung der Satzposition. kleine Bäume einordnen in Bäume die zu Satzbeginn starten
-        # Einzelne Buchstaben aufräumen
-        # firmware -> ERN, 'CPU'[feature_series] -> soll enity semantic -> CPU und Komponenten Modul etc. ausfindig machen, das mapping wird über synsonyme veranlasst
-        # klammern auch noch auswerten -> nachdem man die produkte hat (incl. verweißt auf features hin, meint aber auch die range von anderen Produkten oder SoftwARE.)
-
-        # nach Zahlensemenatik schauen bei pro serie. z.b. DP taucht bei beliebigen Regex auf, dann kann hinweis auf Software. Netzwerk Feature sein
-        # A/B aufteilen in A und B auf gleicher höher von feautere series
-
-
-
-        # nächster Schritt - lernkomponente soll festlegen welche davon bekannt sind. beim erneuten durchlauf einfließen lassen
-
-        # Ranges:  '<=', '<', '>' ['<', '>', '<=', '>=', 'Series'] -> TODO in sysiphos
-        # MELIPC Series MI5122-VW Firmware: <=05
-
-        # Series -> Plural weißt auf range mit affected hin
-
-        # TODO after first kommen keine Ergebnisse mehr -LETZTER STAND
-        # stoppwörter or ('17X****', 'or', 'later') 29
-        # "name": "SIMATIC S7-400 CPU hardware version 5.0 (incl. SIPLUS variants)"
-
-        # Firmware nach CPU weißt auf Range hin -> Firmware ist wichtigies ERN
-
-        #corpus = self.corpus.raw_load(DataFrameHelper.DEFAULT_STORE_KEY)
-        # outlier -> for variant
-        # TODO ( and ) in klammer raus. and aufsplitten
-        # ausreiser SIMATIC CP1616 / CP1604-> aufsplitten
-        # Synonyme von Software -> Process ? SIMATIC Process Historian ist eine Softwarelösung
-        # TODO besserer name -> kann auf alles angewendet werden auch für vendor tabelle
         corpus = self.corpus.filter_corpus_column(store_key_src=DataFrameHelper.DEFAULT_STORE_KEY,
                                                   store_key_tgt=DataFrameHelper.DEFAULT_STORE_KEY,
                                                   columns=['product_name'], search_terms=None, blacklist=blacklist)
-
-        # TODO more special chars und in sysiphos, herstellerspezifisch
-        # outliner SIPLUS ET 200SP CP 1543SP-1 ISEC TX RAIL (6AG2543-6WX00-4XE0)
-        # zwei produkte ohne komma aufgelistet -> muss identifiziert werden durch die mehrheit
 
         corpus.loc[:, 'product_name'] = corpus.loc[:, 'product_name'].astype(str)
         corpus.loc[:, 'product_name'] = corpus.loc[:, 'product_name'].str.rstrip('.,:')
         corpus.loc[:, 'product_name'] = corpus.loc[:, 'product_name'].apply(lambda x: StringMinerHelper.clean_parentheses(x) if x is not None else x)
         self.corpus.raw_save(DataFrameHelper.DEFAULT_STORE_KEY, corpus)
+
 
     def save_vendors_and_brands(self, database_helper: CSAFDataBaseHelper):
         database_helper.create_vendor_index()
@@ -167,9 +102,10 @@ class CorpusManager:
             json_data = json.dumps(vendor_data)
             database_helper.save_json_data(key=key, json_value=json_data)
 
+
     def _bl_step_extract_csaf_vendors(self):
         df = self.corpus.raw_load(DataFrameHelper.DEFAULT_STORE_KEY)
-        df['vendor'] = df['vendor'].apply(StringMinerHelper.pre_filter_csaf_vendors)
+        df['vendor'] = df['vendor'].apply(PreCleaner.pre_filter_csaf_vendors)
         self.corpus.raw_save(DataFrameHelper.DEFAULT_STORE_KEY, df)
         csaf_vendors = list(set(df['vendor'].dropna().unique().tolist()))
         csaf_vendors_check = csaf_vendors.copy()
@@ -185,8 +121,8 @@ class CorpusManager:
                                                                   'vendors_similar_oui': [],
                                                                   'vendors_similar_all': similar_vendors,
                                                                   'brands': []}
-
         self._append_vendor_from_oui()
+
 
     def _normalize_csaf_vendors(self, similar_vendors):
         if len(similar_vendors) > 1:
@@ -200,6 +136,7 @@ class CorpusManager:
                 return self._normalize_vendor_in_corpus_context(filtered_vendors)
         else:
             return similar_vendors[0]
+
 
     def _normalize_vendor_in_corpus_context(self, vendors: []):
         df = self.corpus.raw_load(DataFrameHelper.DEFAULT_STORE_KEY)
@@ -227,6 +164,7 @@ class CorpusManager:
         if high_word_detailed is None:
             return vendors[0]
         return high_word_detailed
+
 
     def _append_vendor_from_oui(self):
         oui_lookup, oui_lookup_without_legal_forms = (
@@ -292,6 +230,7 @@ class CorpusManager:
                         self.oui_csaf_vendor_mapping[oui_compare]['vendor_oui'] = oui_lookup[oui_compare]
                         self.oui_csaf_vendor_mapping[oui_compare]['vendor_without_legal_oui'] = oui_lookup_without_legal_forms[oui_compare]
 
+
     def _check_suspected_outliers_token(self, suspected_outliers: dict) -> []:
         """
         rules also based on vendor, so use custom strategy pattern if you need to recognize token
@@ -310,45 +249,29 @@ class CorpusManager:
             cleaned_outliers.append(outlier_character_clean)
         return cleaned_outliers
 
-    def _get_n_gramm_words(self, n, token:str=None, token_list:[]=None) -> list:
-        if token_list is not None:
-            all_token_list = []
-            for token in token_list:
-                if token in self.ngramm_index and n in self.ngramm_index[token]:
-                    all_token_list.extend(self.ngramm_index[token][n])
-            return all_token_list
-        if token in self.ngramm_index and n in self.ngramm_index[token]:
-            return self.ngramm_index[token][n]
-        return []
 
-    def _get_n_gramm_with_all_words(self, n, token: str = None, token_list: [] = None) -> list:
-        result = []
-        if token_list is not None and len(token_list) > 0:
-            # Gehe durch alle N-Gramme des ersten Tokens in der Liste
-            if token_list[0] in self.ngramm_index and n in self.ngramm_index[token_list[0]]:
-                for ngramm in self.ngramm_index[token_list[0]][n]:
-                    match = True
-                    for pos, token in enumerate(token_list[1:], start=1):
-                        if pos >= len(ngramm) or ngramm[pos] != token:
-                            match = False
-                            break
-                    if match:
-                        result.append(list(ngramm))
-        elif token in self.ngramm_index and n in self.ngramm_index[token]:
-            return self.ngramm_index[token][n]
-        return result
+    def create_n_gramm(self,text, vendor):
+        tokens = text.split()
+        if len(tokens) < 2:
+            return []
+        path = []
+        for i in range(0, len(tokens) - 1):
+            path_next = path.copy()
+            path_next.append(tokens[i])
 
-    def generate_n_gramm_index(self, n_gramm):
-        index = {}
-        for n in range(1, min(len(n_gramm), 7)):
-            for words, count in n_gramm[n]:
-                for word in words:
-                    if word not in index:
-                        index[word] = {}
-                    if n not in index[word]:
-                        index[word][n] = []
-                    index[word][n].append(words)
-        return index
+            following_token = tokens[i + 1]
+            path_text = " ".join(path_next)
+            if path_text not in self.ngramm_index_by_vendor[vendor]:
+                self.ngramm_index_by_vendor[vendor][path_text] = []
+            if following_token not in self.ngramm_index_by_vendor[vendor][path_text]:
+                self.ngramm_index_by_vendor[vendor][path_text].append(following_token)
+            path = path_next
+
+
+    def create_ngramm_for_vendor(self, vendor, column:str):
+        self.ngramm_index_by_vendor[vendor] = {}
+        df_vendor = self.corpus.raw_load(vendor)
+        df_vendor.loc[:, column].apply(lambda x: self.create_n_gramm(x, vendor))
 
     def _bl_step_extract_brands(self, vendor: str):
         print(f'extract brands from {vendor}')
@@ -356,10 +279,6 @@ class CorpusManager:
         # TODO synonym group beachten, vendor sollte list sein
         vendor_filtered_df = self.corpus.init_vendor(DataFrameHelper.DEFAULT_STORE_KEY, vendor)
         self._filter_vendor_data(vendor=vendor)
-
-        # TODO funktionen auslagern der ngramme soll es in dataframe helper NACH self.corpus.init_vendor
-        self.ngramm_result = self.corpus.create_word_statistics(store_key_src=vendor, column='product_name')
-        self.ngramm_index = self.generate_n_gramm_index(self.ngramm_result)
 
         # TODO für Thesis wie ich auf die marken komme. formel, vorraussetzung, anzahl datensätze, updatemechanismus
         # TODO hybrid, brand kann im selben token auch die serie haben, man kann es auch als serie und unterserie sehen, kein festes format
@@ -374,18 +293,8 @@ class CorpusManager:
         # two_ngramm_words = [words[0] for words in self.temp_result[1] if words[0] in first_two_words_by_vendor]
         groups, unique = self.string_miner.group_token(list(set(first_word_by_vendor)))
 
-        outliners = groups
-        # outliers noch behandeln für Marken die keine Statischen Serien vorher haben
         possible_brands = unique
-        # print(groups) # könnte auch gruppe mit serie als hybrid token sein
-        # todo repair, wenn brand -> series -> subseries -> brand brand series, wenn da keine varianz ist im 2. token
 
-        # auflistung in thesis design bereits schreiben
-        # wie kommt man an die spitze das SIMATIC das root word ist, nach textreihenfolge oder
-        # TODO prefixe der serie können fehlen, das wird später wieder repariert mit baum, diesmal in umgekehrter richtung. anstatt prefix zu viel, wird es an prefix gehängt wenn folgetoken stimmen -> nach group merkmale
-        # Series und Type sind getrennt # https://de.mitsubishielectric.com/fa/products/cnt/plc/allnetworkcommunicationmodule/rd81dl96.html
-
-        # TODO vendor ähnliche schreibweise -> vergleich mit IEEE
         vendor_tree = VendorProductTree(vendor)
         for possible_brand in possible_brands:
             next_forced_words = set([words[1] for words in first_two_words_by_vendor if words[0] == possible_brand])
@@ -394,23 +303,10 @@ class CorpusManager:
 
         self.csaf_vendors_extracted[vendor]['brands'] = list(possible_brands.keys())
 
-
         print(f'VENDOR finished: {vendor} ---------------------------------------------------------')
-        # vendor_tree.show_full_tree()
-
+        #vendor_tree.show_full_tree()
         self.product_trees[vendor] = vendor_tree
 
-        # TODO bei filter -> entfernen oder kennzeichnen -> gehört zu Semantics
-        # from nltk.corpus import stopwords
-        # print(stopwords.words('english'))
-        #print(stopwords.words('german'))
-
-        # TODO ERN nomen
-        # nltk_nomen_extract_example.py
-
-        # see gensim_similar.py
-        #model = api.load("word2vec-google-news-300")
-        #similarity = model.wv.similarity('king', 'queen')
 
     def _filter_vendor_data(self, vendor):
         df_vendor = self.corpus.raw_load(store_key_src=vendor)
@@ -418,6 +314,7 @@ class CorpusManager:
             lambda x : StringMinerHelper.remove_all_prefix_variants(x,
                         self.csaf_vendors_extracted[vendor]['vendors_similar_csaf']))
         self.corpus.raw_save(vendor, df_vendor)
+
 
     def justify_groups(self, groups: list, outliner: list):
         """
@@ -460,10 +357,16 @@ class CorpusManager:
             groups_justifiy.append(group_justified)
         return groups_justifiy
 
+
+    def _cached_vendor_n_gramm_index(self, vendor: str):
+        if vendor not in self.ngramm_index_by_vendor or self.ngramm_index_by_vendor[vendor] is None:
+            self.create_ngramm_for_vendor(vendor, 'product_name')
+
+
     def _bl_step_extract_series(self, tree: VendorProductTree, brand, next_forced_words):
-        # after brand there are series with 1 till n words and subseries with 1 till n token. or subseries kann start
-        # in same token as last series token
+        self._cached_vendor_n_gramm_index(tree.get_vendor())
         self._bl_step_extract_series_recursive(tree, brand, next_forced_words, next_token=None, next_meta_info={'annotations': []})
+
 
     # TODO Refactoring: funktionen auslagern
     # Es funktioniert bis jetzt Baum von Links nach Rechts auszuwerten, aber nicht wenn es zwischen SIMATIC CP 200 und SIMATIC CP pro 200 ein Zwischenwort gibt
@@ -474,7 +377,7 @@ class CorpusManager:
     def _bl_step_extract_series_recursive(self, vendor_tree: VendorProductTree, brand: str, next_forced_words:[]=None,
                                           next_token=None,
                                           last_node: ProductNode = None,
-                                          level_gramm: int = 0, next_meta_info: dict = None, parse_only_one=False, parsed_group_node=None) -> ProductNode:
+                                          level_gramm: int = 0, next_meta_info: dict = None, parse_only_one=False, parsed_group_node=None) -> ProductNode|None:
 
         is_root_brand = False
         # TODO experimental for feature groups
@@ -483,22 +386,26 @@ class CorpusManager:
             next_token = parsed_group_node.get_token()
         elif next_token is None:
             is_root_brand = True
+            # todo cache
             next_token = self.string_miner.characterize(brand)
             last_node = vendor_tree.get_brand(brand)
+        elif next_token is not None:
+                token_list = [last_node.get_token_value()] + [next_token['value']]
+                search_text = " ".join(token_list)
+                found = False
+                for ngram_key in self.ngramm_index_by_vendor[vendor_tree.get_vendor()].keys():
+                    if ngram_key.startswith(brand) and ngram_key.endswith(search_text):
+                        found = True
+                if not found:
+                    return None
 
         next_token_value: str = next_token['value']
         pos_token_gramm = level_gramm  # das varriert, hier dritte gruppe.
 
-        # TODO nicht auf 8 beschränken -> Magic Const
-        if len(self.ngramm_result) < level_gramm + 1:
-            return
-
         types_before_check = last_node.get_meta_info('types_before')
 
-        # TODO feature extraktion
-        # nlp, ern
-        # kontexte der weiteren featuere token
         if not parsed_group_node:
+            # TODO cache
             token_type, annotations = self.string_miner.annotate_token(token=next_token, token_before=last_node, next_meta_info=next_meta_info)
 
             if annotations is None:
@@ -528,85 +435,34 @@ class CorpusManager:
         group_feature_token = []
         following_group_feature_token = []
         if pos_series_start is not None:
+
             next_forced_words = None
             last_found_type = types_before_check[-pos_series_start]
-            # TODO sehr spezifisch mit Klammern auf Siemens abgestimmt, kann auch feature series sein. das ist der letzte part des algorithmus
-            if last_found_type == Semantics.TOKEN_PARENTHESES_START: # Feature Group finden als first_forced_words, das gleiche dann nochmal in Klammer
-                last_feature_group_pos_start, last_feature_group_pos_end = SemanticsState.get_last_series_kind_state(types_before_check, state_searched=[Semantics.TOKEN_FEATURE_GROUP])
-                if last_feature_group_pos_start is not None:
-                    search_node = last_node
-                    group_feature_token = search_node.get_group_siblings_token()
-                    for i in range(0, 20):  # TODO magic const
-                        if last_feature_group_pos_start <= i <= last_feature_group_pos_end:
-                            group_feature_token = search_node.get_group_siblings_token()
-                            break
-                        elif i > pos_series_end:
-                            break
-                        following_group_feature_token.append(search_node.get_token_value())
-                        search_node = search_node.get_parent()
-                        group_feature_token = search_node.get_group_siblings_token()
 
-            # last series as long not arrived features
-            elif pos_series_start is not None:
-                search_node = last_node
-                for i in range(0, 20): # TODO magic const
-                    # if pos_series_start <= i <= pos_series_end:
-                    if i <= pos_series_end:
-                        last_forced_words.append(search_node.get_token_value())
-                        break
-                    elif i > pos_series_end:
-                        break
-                    search_node = search_node.get_parent()
-
+        brand_next_token = []
         if next_forced_words is not None:
-            token_list = list(next_forced_words)
-            brand_next_token = []
-            for token in token_list:
-                token_with_brand = [brand, token]
-                brand_next_token.extend(self._get_n_gramm_with_all_words(n=len(token_with_brand) + 1, token_list=token_with_brand))
+            brand_next_token = list(set(next_forced_words))
         elif len(last_forced_words) > 0:
-            if last_node.get_token_value() == '(':
-                last_forced_words.append(last_node.get_token_value())
-            token_list = last_forced_words
-            brand_next_token = self._get_n_gramm_with_all_words(n=len(token_list) + 1, token_list=token_list)
-        elif len(group_feature_token) > 0:
-            brand_next_token = []
-            for group_token in group_feature_token:
+            token_list = [brand] + last_forced_words
+            search_text = " ".join(token_list)
+            if search_text in self.ngramm_index_by_vendor[vendor_tree.get_vendor()]:
+                brand_next_token = self.ngramm_index_by_vendor[vendor_tree.get_vendor()][search_text]
+            if len(brand_next_token) == 0:
+                return None
 
+        elif len(group_feature_token) > 0:
+            for group_token in group_feature_token:
                 group_with_following_token = [group_token]
                 group_with_following_token.extend(following_group_feature_token)
-                #if Semantics.TOKEN_FEATURE_GROUP in types_before_check[-3] and Semantics.TOKEN_FEATURE_SERIE == types_before_check[-2]:
-                #    test = 'a'
                 brand_next_token.extend(self._get_n_gramm_with_all_words(n=len(group_with_following_token) + 1, token_list=group_with_following_token))
         else:
-            # level_gramm ist zu hoch
-            brand_next_token = self._get_n_gramm_words(n=level_gramm + 1, token=next_token_value)
+            brand_next_token = []
+            for ngram_key in self.ngramm_index_by_vendor[vendor_tree.get_vendor()].keys():
+                if ngram_key.startswith(brand) and ngram_key.endswith(next_token_value) and ngram_key.count(" ") == level_gramm - 2:
+                    brand_next_token.extend(self.ngramm_index_by_vendor[vendor_tree.get_vendor()][ngram_key])
 
-        # TODO Thesis begründung
-        # immer paar weise nach folge wörter abfragen, nach A - CPU -> wenn nur nach B Sucht kann man für CPU auch die CPU Serien von B bekommen
-        # AB 3 Prefix wörtern fehlen, kommt bei unstrukturierten Text eigener Zweig doppelt vor
-        children_tokens = []
-        for words in brand_next_token:
-            index = 0
-            found = False
-            for word in words:
-                # TODO Group Features, vergleicht aktuellen token mit folgetoken vom vorherigen n-Gramm ((<group-token>), parent.token, _____)
-                if len(group_feature_token) > 0:
-                    if last_node.get_token_value() == word:
-                        found = index
-                        break
-                elif next_token_value == word: # position sollte nächstes wort sein
-                    found = index
-                    break
-                # experimental Baustelle, hier muss parsed_group_node.get_group_siblings_token() berückstichtig werden. es können ja mehrere folgetoken haben
-                #elif parsed_group_node is not None and word in parsed_group_node.get_group_siblings_token():
-                #    found = index
-                #    break
-                index = index + 1
-            if found is not False and len(words) > found + 1:
-                children_tokens.append(words[found + 1])
-        children_tokens = list(set(children_tokens))
-
+        brand_next_token = list(set(brand_next_token))
+        children_tokens = brand_next_token
         # Annotation stopword 'with' -> sysiphos
 
         # TODO Auslagern Token Matcher-------------
@@ -655,24 +511,15 @@ class CorpusManager:
             group_nodes[group_id] = []
             group_nodes_all[group_id] = []
             for key, next_token in group.items():
-
-                next_type_special_char = None
-                next_type_for_group = SemanticsState.predict_new_state(types_before, True,
-                                                                           special_char=next_type_special_char)
+                next_type_for_group = SemanticsState.predict_new_state(types_before, True)
                 types_for_group = types_before.copy()
                 types_for_group.extend(next_type_for_group)
 
-                # TODO auch Semantics.TOKEN_PARENTHESES_FEATURE_GROUP das hier
                 # connect group immediately as objects, further children token can access on siblings parents token
-                if next_type_for_group == [Semantics.TOKEN_FEATURE_GROUP, Semantics.TOKEN_PARENTHESES_FEATURE_GROUP]:
-                    parse_only_one = True
-                else:
-                    parse_only_one = False
-
-                # TODO erkennt duplikate aber macht keine gruppierung, vermutlich muss die 2. das sein
-                #if last_node.get_parent() is not None and last_node.get_parent().get_token_value() == last_node.get_token_value():
-                #    return current_node
-
+                #if next_type_for_group == [Semantics.TOKEN_FEATURE_GROUP]:
+                #    parse_only_one = True
+                #else:
+                parse_only_one = False
                 group_node = self._bl_step_extract_series_recursive(vendor_tree, brand, next_forced_words=next_forced_words,
                                                    next_token=next_token, last_node=current_node, parse_only_one=parse_only_one,
                                                    level_gramm=level_gramm + 1,
@@ -686,7 +533,6 @@ class CorpusManager:
                 if group_node is not None:
                     group_nodes_all[group_id].append(group_node) # without parsing recursive children
 
-        # TODO ist nur ein element, müssten immer zwei sein mindestens, gruppierung funktioniert nicht
         for group_id, group_items in group_nodes_all.items():
             if len(group_items) > 0:
                 unique_id = uuid.uuid4()
@@ -696,6 +542,8 @@ class CorpusManager:
                     group_item.set_group_siblings(group_items)
                     group_item.set_group_unique(unique_id)
 
+        #print("group_nodes")
+        #print(group_nodes)
         for group_id, group_items in group_nodes.items():
             for group_item in group_items:
                 # combine siblings also for series is useless though following feature groups cpu series are different
@@ -705,13 +553,11 @@ class CorpusManager:
 
         # not group able meaning next token
         for key, next_token in no_matches.items():
-            next_type_special_char = None
-            if next_token['value'] == '(' or next_token['value'] == ')':
-                next_type_special_char = next_token['value']
-            next_type_for_unique = SemanticsState.predict_new_state(types_before, False,
-                                                                    special_char=next_type_special_char)
+            next_type_for_unique = SemanticsState.predict_new_state(types_before, False)
             types_for_unique = types_before.copy()
             types_for_unique.extend(next_type_for_unique)
+
+            next_forced_words = None
             self._bl_step_extract_series_recursive(vendor_tree, brand, next_forced_words=next_forced_words,
                                                    next_token=next_token, last_node=current_node,
                                                    level_gramm=level_gramm + 1,
@@ -719,3 +565,27 @@ class CorpusManager:
                                                                    'group_id': None, 'types_before': types_for_unique, 'annotations': []})
         current_node.set_children_groups_counts(len(groups))
         return current_node
+
+
+    def after_cleanup(self):
+        """
+        TODO Extraktion der features und vergleich
+        Liste der Produkte
+
+        """
+        values = []
+        search_key_prefix = "L_E_PRODUCT:"
+        keys = list(redis_client.scan_iter(match=search_key_prefix + "*", count=1000))
+        keys = [key.decode("utf-8") if isinstance(key, bytes) else key for key in keys]
+        for key in keys:
+            value = redis_get_json(key)
+            values.append(value)
+
+        for vendor in self.product_trees.keys():
+            df_vendor = self.corpus.raw_load(vendor)
+            for value in values:
+                pass
+
+            print(f'after cleanup vendor: {vendor}')
+            #self.product_trees[vendor].after_cleanup()
+

@@ -9,10 +9,11 @@ class VendorProductTree:
     vendor = None
     brands = {}
 
-    def save_product_type_and_regex(self, database_helper:CSAFDataBaseHelper):
+    def save_product_type_and_regex(self, database_helper:CSAFDataBaseHelper, regex:bool=False):
 
         database_helper.create_product_type_index()
-        database_helper.create_regex_product_type_index()
+        if regex:
+            database_helper.create_regex_product_type_index()
         database_helper.create_brand_index()
         database_helper.create_vendor_index()
 

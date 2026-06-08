@@ -1,5 +1,3 @@
-'''Introduction missing'''
-
 import ast
 import sys
 from pathlib import Path
@@ -27,7 +25,7 @@ def parse_queryset(arguments: list[str]) -> list[str]:
     query_text = parsed if isinstance(parsed, str) else value
     queryset = [query.strip() for query in query_text.split(",")]
     if not all(queryset):
-        raise ValueError("Durch Komma getrennte Queries dürfen nicht leer sein.")
+        raise ValueError("Kommagetrennte Queries dürfen nicht leer sein.")
     return queryset
 
 def main():

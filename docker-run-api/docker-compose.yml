@@ -14,6 +14,7 @@ services:
       - CSAF=/app/resources/CSAF
       - CSAF_FORCE_REINIT=False
       - CSAF_FOLDERS=2010-2026
+      - CSAF_REGEX_MODE=False
       - PLACEHOLDER_KEYWORDS_FILE=/app/config/placeholder_keywords.toml
       #- CSAF_VENDORS=Siemens,Schneider Electric, Rockwell Automation
       - OUI_FILE=/app/resources/latest_oui_lookup.json
@@ -61,8 +62,8 @@ services:
     image: qdrant/qdrant:latest
     container_name: qdrant2026
     ports:
-      - "127.0.0.1:6337:6333"   # REST API
-      - "127.0.0.1:6338:6334"   # gRPC (optional)
+      - "127.0.0.1:6333:6333"   # REST API
+      - "127.0.0.1:6334:6334"   # gRPC (optional)
     volumes:
       - qdrant_data:/qdrant/storage
     restart: always

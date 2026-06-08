@@ -13,10 +13,11 @@ class TokenMatcher:
         token:list = text.split()
         token_matcher_decision.set_token_list(token)
 
-        token_matcher_decision.find(TokenMarker.PLACEHOLDER)
-        token_matcher_decision.find(TokenMarker.VENDOR)
-        token_matcher_decision.find(TokenMarker.BRAND)
-        token_matcher_decision.find(TokenMarker.PRODUCT_SUB_SERIES)
+        find_order = [TokenMarker.UNIQUE, TokenMarker.PLACEHOLDER, TokenMarker.VENDOR, TokenMarker.BRAND, TokenMarker.PRODUCT_SUB_SERIES]
+        for find in find_order:
+            token_matcher_decision.find(find)
+            if token_matcher_decision.has_found_product():
+                break
 
         results = token_matcher_decision.get_result()
 

@@ -29,10 +29,10 @@ class PhysicalUnitStringMinerStrategy(StringMinerStrategy):
             # TODO nachträglich letzten Token annotieren, 2 mal durchlaufen lassen, bzw. mit visitor anstatt recursiv
         if token['value'].lower() in ['v', 'version', 'ver']:
             return 70, None,[Annotation.ANNOTATION_VERSION_IDENTIFIER]
-        elif token_before.has_annotation(Annotation.ANNOTATION_VERSION_IDENTIFIER) and (str(token['value']).isdigit() or StringMinerHelper.has_float_sequence(token['value'])):
+        elif token_before is not None and token_before.has_annotation(Annotation.ANNOTATION_VERSION_IDENTIFIER) and (str(token['value']).isdigit() or StringMinerHelper.has_float_sequence(token['value'])):
             return 70, None,[Annotation.ANNOTATION_VERSION]
         elif StringMinerHelper.has_float_sequence(token['value']) and str(token['value']).lower().startswith('v'):
             return 70, None,[Annotation.ANNOTATION_VERSION_IDENTIFIER_AND_VERSION]
-        elif StringMinerHelper.is_unique(token) and 'group' in next_meta_info and next_meta_info['group'] is True:
+        elif StringMinerHelper.is_unique(token) and (next_meta_info is None or ('group' in next_meta_info and next_meta_info['group'] is True)):
             return 70, None,[Annotation.ANNOTATION_UNIQUE]
         return 0, None, []

@@ -9,27 +9,6 @@ from normalizer.semantics.semantics import Semantics
 
 class StringMinerHelper:
 
-    # TODO auslagern Text Mining Strategy
-    @staticmethod
-    def is_stop_word(token:str):
-        from nltk.corpus import stopwords
-
-    # TODO auslagern Text Mining Strategy
-    @staticmethod
-    def is_nomen_word(self, token, pos=None):
-        pass
-        # Beispiel für Synonyme eines Begriffs
-        # synonyms = wordnet.synsets(token, pos)  # n = Nomen, v = Verb, a = Adjetkiv, r = Adverb
-        # return [(synonym.name(), synonym.definition(), synonym.examples(), synonym.pos()) for synonym in synonyms]
-
-    @staticmethod
-    def pre_filter_csaf_vendors(vendor:str) -> str|None:
-        # TODO thesis
-        if vendor.count(',') > 2 or vendor.count('and') > 0 or vendor.count(';') > 0:
-            return None
-        vendor = vendor.strip(',.:')
-        return vendor
-
     @staticmethod
     def extract_mac_normalized(text, oui=False):
         if oui is True:
@@ -180,9 +159,9 @@ class StringMinerHelper:
         return re.match(version_regex, value) is not None
 
     @staticmethod
-    def is_unique(token: dict) -> bool:
+    def is_unique(token: dict, min_count:int = 5) -> bool:
         # TODO parameters in config and more complex alogrithmen
-        if len(token['segment_types']) > 5:
+        if len(token['segment_types']) > min_count:
             return True
         return False
 

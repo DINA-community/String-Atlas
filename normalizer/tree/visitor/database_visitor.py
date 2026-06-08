@@ -5,23 +5,17 @@ from normalizer.tree.visitor.visitor import Visitor
 
 
 class DatabaseVisitor(Visitor):
-    token_list = None
-    product_type_list = None
-    product_type_regex_list = None
-    structure = None
-    string_m = None
-    group_uuid = {}
 
-    def __init__(self, database_helper:CSAFDataBaseHelper, vendor, brand):
+    def __init__(self, database_helper:CSAFDataBaseHelper, vendor, brand, regex:bool=False):
         super().__init__(database_helper, vendor, brand)
-
         self.product_type_list = {}
         self.product_type_regex_list = {}
         self.token_list = {}
-        self.structure = {'vendor': vendor, 'brand': brand, 'product_types': []}
+        self.structure:dict = {'vendor': vendor, 'brand': brand, 'product_types': []}
         self.group_uuid = []
+        self.regex:bool = regex
         from string_miner.string_miner import StringMiner
-        self.string_m = StringMiner()
+        self.string_m:StringMiner = StringMiner()
 
     def _save_group_regex_keys(self, product_type:str, token_value:str, token_segment_types:[], group_regex:[], token_regex:[],
                                group_uuid, types:[], annotations:[], whole_tokens:[], token_pos: int):
@@ -31,7 +25,6 @@ class DatabaseVisitor(Visitor):
         token_key = ('regex_uuid:' + str(group_uuid) + '___' + 'regex_type:' + short_type_index + '___regex_detail_type:' + ',,'.join(group_regex)
         + '___regex_token:' + ',,'.join(token_regex)
         + '___vendor:' + self.vendor +'___product_type:' + product_type +'___token_value:' + token_value)
-        # token_key = re.sub(r'[^a-zA-Z0-9\-:|]', '__', token_key)
         json_data = json.dumps({
             "vendor": self.vendor,
             "product_type": product_type,
@@ -166,14 +159,14 @@ class DatabaseVisitor(Visitor):
                 types = meta_info['types']
                 annotations = meta_info['annotations']
                 group_uuid = meta_info['group_uuid']
-                group_regex = meta_info['group_regex']
-                token_regex_detail = meta_info['token_regex_detail']
                 whole_tokens = meta_info['whole_tokens']
                 token_pos = meta_info['token_pos']
 
                 # only unique regex patterns for same groups to save computing and database resources
-
-                self._save_group_regex_keys(product_type, token_value, token_segment_types, group_regex, token_regex_detail,
+                if self.regex:
+                    token_regex_detail = meta_info['token_regex_detail']
+                    group_regex = meta_info['group_regex']
+                    self._save_group_regex_keys(product_type, token_value, token_segment_types, group_regex, token_regex_detail,
                                             group_uuid, types, annotations, whole_tokens, token_pos)
 
 

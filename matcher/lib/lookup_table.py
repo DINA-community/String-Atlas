@@ -58,10 +58,11 @@ def normalized_product_token_key(product_subseries_token):
     key_product_subseries_token = normalized_index_token_key(product_subseries_token)
     return PREFIX_TOKEN_PRODUCT+":"+ key_product_subseries_token
 
-def normalized_product_entity_key(vendor, product_subseries_token):
+def normalized_product_entity_key(vendor, brand, product_subseries_token):
     key_vendor = normalized_index_token_key(vendor)
+    key_brand = normalized_index_token_key(brand)
     key_product_subseries_token = normalized_index_token_key(product_subseries_token)
-    return PREFIX_ENTITY_PRODUCT+":"+key_vendor + "__" + key_product_subseries_token
+    return PREFIX_ENTITY_PRODUCT+":"+key_vendor + "__" + key_brand + "__" + key_product_subseries_token
 
 def normalized_vendor_entity_key(vendor):
     key_vendor = normalized_index_token_key(vendor)
@@ -199,7 +200,7 @@ def create_product_lookup_tables(df):
         )
 
         brands = tmp[tmp[TokenSemanticEnum.SUBSERIES.value] == subserie][TokenSemanticEnum.BRAND.value].tolist()
-        uniques = tmp[tmp[TokenSemanticEnum.SUBSERIES.value] == subserie][TokenSemanticEnum.UNIQUE.value].tolist()
+        #uniques = tmp[tmp[TokenSemanticEnum.SUBSERIES.value] == subserie][TokenSemanticEnum.UNIQUE.value].tolist()
 
         for brand in brands:
             if not isinstance(brand, list):
@@ -207,13 +208,15 @@ def create_product_lookup_tables(df):
             brand_entity_id = normalized_brand_entity_key(" ".join(brand))
 
             product_key = " ".join(series + [subserie])
-            norm_product_entity_key = normalized_product_entity_key(vendor, product_key)
+            norm_product_entity_key = normalized_product_entity_key(vendor, " ".join(brand), product_key)
 
+            """
             for unique in uniques:
                 if len(unique) > 0 and isinstance(unique[0], str):
                     unique = unique[0]
                     key_token_unique = normalized_unique_token_key(unique)
                     unique_token_index[key_token_unique] = [norm_product_entity_key]
+            """
 
             if norm_product_entity_key not in product_entity_index:
                 product_entity_index[norm_product_entity_key] = True

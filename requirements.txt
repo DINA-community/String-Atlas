@@ -1,11 +1,11 @@
 pyspellchecker==0.7.2
-regex==2023.8.8 # TODO minor patching
+regex>=2025.7.34
 openpyxl
 pandas>=2.2
 defusedxml
 Flask
 redisearch
-numpy==1.26.4
+numpy>=2.3.2
 levenshtein
 fuzzywuzzy
 logging

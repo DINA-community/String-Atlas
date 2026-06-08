@@ -10,17 +10,9 @@ class Semantics:
     TOKEN_FEATURE = 'static_feature'  # after a group, maybe too less values, can be how cpu is build
     TOKEN_OUTLIER_SUSPECTED = 'outlier_suspected'
 
-    TOKEN_PARENTHESES_START = 'parentheses_start'
-    TOKEN_PARENTHESES_END = 'parentheses_end'
-    TOKEN_PARENTHESES_FEATURE_STATIC = 'parentheses_feature_static'
-    TOKEN_PARENTHESES_FEATURE_GROUP = 'parentheses_feature_group'
-
-
     TOKEN_SERIES_ONLY_LIST = [TOKEN_SERIES]
-    PARENTHESIS_LIST = [TOKEN_PARENTHESES_START, TOKEN_PARENTHESES_END, TOKEN_PARENTHESES_FEATURE_STATIC, TOKEN_PARENTHESES_FEATURE_GROUP]
-    PARENTHESIS_LIST_OPEN = [TOKEN_PARENTHESES_START, TOKEN_PARENTHESES_FEATURE_STATIC, TOKEN_PARENTHESES_FEATURE_GROUP]
-    TOKEN_SERIES_LIST2 = [TOKEN_SERIES_AND_SUB_SERIES_MIX, TOKEN_SERIES, TOKEN_SERIES, TOKEN_SUB_SERIES, TOKEN_FEATURE_SERIE,TOKEN_FEATURE_GROUP, TOKEN_PARENTHESES_FEATURE_GROUP]
-    TOKEN_SERIES_LIST = [TOKEN_SERIES_AND_SUB_SERIES_MIX, TOKEN_SERIES, TOKEN_SUB_SERIES, TOKEN_FEATURE_SERIE,TOKEN_FEATURE_GROUP, TOKEN_PARENTHESES_FEATURE_GROUP]
+    TOKEN_SERIES_LIST2 = [TOKEN_SERIES_AND_SUB_SERIES_MIX, TOKEN_SERIES, TOKEN_SERIES, TOKEN_SUB_SERIES, TOKEN_FEATURE_SERIE,TOKEN_FEATURE_GROUP]
+    TOKEN_SERIES_LIST = [TOKEN_SERIES_AND_SUB_SERIES_MIX, TOKEN_SERIES, TOKEN_SUB_SERIES, TOKEN_FEATURE_SERIE,TOKEN_FEATURE_GROUP]
     TOKEN_BRAND_TILL_SERIES = [TOKEN_BRAND, TOKEN_SERIES, TOKEN_SUB_SERIES, TOKEN_SERIES_AND_SUB_SERIES_MIX]
 
     TOKEN_FEATURES = [TOKEN_FEATURE_GROUP, TOKEN_FEATURE, TOKEN_FEATURE_SERIE]
@@ -77,7 +69,9 @@ class FeatureSemantics:
                 if value == token:
                     return key
 
+
 class SemanticsState:
+
     @staticmethod
     def get_last_series_pos(token_types: []):
         pos = 0
@@ -86,11 +80,6 @@ class SemanticsState:
                 return pos
             pos = pos + 1
 
-    @staticmethod
-    def get_last_normal_state(states_before):
-        states_before = [x for x in states_before if x not in Semantics.PARENTHESIS_LIST]
-        last_state = states_before[-1]
-        return last_state
 
     @staticmethod
     def get_last_series_kind_state(states_before, state_searched:[]) -> tuple():
@@ -107,61 +96,45 @@ class SemanticsState:
                     end = i
         return start, end
 
-    def add_special_char(self, special_char=None):
-        pass
 
-    # TODO level müsste hochgezählt werden bei mehreen feautres
     @staticmethod
-    def predict_new_state(states_before, is_group_member, special_char=None):
+    def predict_new_state(states_before, is_group_member):
 
         if len(states_before) == 0:
             raise ValueError('every item type have to be iniated')
         last_state = states_before[-1]
 
-        if special_char is not None and special_char == '(':
-                return [Semantics.TOKEN_PARENTHESES_START]
-        elif special_char is not None and special_char == ')':
-            return [Semantics.TOKEN_PARENTHESES_END]
-        elif last_state in Semantics.PARENTHESIS_LIST_OPEN:
+        if last_state == Semantics.TOKEN_BRAND:
             if is_group_member:
-                return [Semantics.TOKEN_PARENTHESES_FEATURE_GROUP]
+                return [Semantics.TOKEN_SERIES_AND_SUB_SERIES_MIX]
             else:
-                return [Semantics.TOKEN_PARENTHESES_FEATURE_STATIC]
+                return [Semantics.TOKEN_SERIES]
+        elif last_state == Semantics.TOKEN_SERIES:
+            if is_group_member:
+                return [Semantics.TOKEN_SUB_SERIES]
+            else:
+                return [Semantics.TOKEN_SERIES]
+        elif last_state == Semantics.TOKEN_SERIES_AND_SUB_SERIES_MIX or last_state == Semantics.TOKEN_SUB_SERIES:
+            if is_group_member:
+                return [Semantics.TOKEN_FEATURE_GROUP]
+            else:
+                return [Semantics.TOKEN_FEATURE_SERIE]
+        elif last_state == Semantics.TOKEN_FEATURE_SERIE:
+            if is_group_member:
+                return [Semantics.TOKEN_FEATURE_GROUP]
+            else:
+                return [Semantics.TOKEN_FEATURE_SERIE]
+        elif last_state == Semantics.TOKEN_FEATURE_GROUP:
+            if is_group_member:
+                return [Semantics.TOKEN_FEATURE_GROUP]
+            else:
+                return [Semantics.TOKEN_FEATURE]
+        elif last_state == Semantics.TOKEN_FEATURE:
+            if is_group_member:
+                return [Semantics.TOKEN_FEATURE_GROUP]
+            else:
+                return [Semantics.TOKEN_FEATURE]
         else:
-            # TODO innerhalb klammer kann ja auch subserie oder serie befinden bei csaf dokumenten
-            if last_state == Semantics.TOKEN_PARENTHESES_END:
-                last_state = SemanticsState.get_last_normal_state(states_before)
+            print(states_before)
+            raise ValueError('No Info about Semantics before')
 
-            if last_state == Semantics.TOKEN_BRAND:
-                if is_group_member:
-                    return [Semantics.TOKEN_SERIES_AND_SUB_SERIES_MIX]
-                else:
-                    return [Semantics.TOKEN_SERIES]
-            elif last_state == Semantics.TOKEN_SERIES:
-                if is_group_member:
-                    return [Semantics.TOKEN_SUB_SERIES]
-                else:
-                    return [Semantics.TOKEN_SERIES]
-            elif last_state == Semantics.TOKEN_SERIES_AND_SUB_SERIES_MIX or last_state == Semantics.TOKEN_SUB_SERIES:
-                if is_group_member:
-                    return [Semantics.TOKEN_FEATURE_GROUP]
-                else:
-                    return [Semantics.TOKEN_FEATURE_SERIE]
-            elif last_state == Semantics.TOKEN_FEATURE_SERIE:
-                if is_group_member:
-                    return [Semantics.TOKEN_FEATURE_GROUP]
-                else:
-                    return [Semantics.TOKEN_FEATURE_SERIE]
-            elif last_state == Semantics.TOKEN_FEATURE_GROUP:
-                if is_group_member:
-                    return [Semantics.TOKEN_FEATURE_GROUP]
-                else:
-                    return [Semantics.TOKEN_FEATURE]
-            elif last_state == Semantics.TOKEN_FEATURE:
-                if is_group_member:
-                    return [Semantics.TOKEN_FEATURE_GROUP]
-                else:
-                    return [Semantics.TOKEN_FEATURE]
-            else:
-                print(states_before)
-                raise ValueError('No Info about Semantics before')

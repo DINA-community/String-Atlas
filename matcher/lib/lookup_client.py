@@ -6,7 +6,7 @@ from qdrant_client.http.models import ScoredPoint
 from matcher.initialise.clients import redis_client, qdrant_client
 import logging
 from matcher.lib.lookup_table import normalized_product_token_plus_vendor_key, normalized_index_token_key, \
-    PREFIX_TOKEN_PRODUCT, normalized_vendor_entity_key, PREFIX_TOKEN_BRAND
+    PREFIX_TOKEN_PRODUCT, normalized_vendor_entity_key, PREFIX_TOKEN_BRAND, PREFIX_TOKEN_UNIQUE
 from matcher.initialise.model_provider import get_sentenance_model
 from matcher.lib.token_enum import TokenSemanticEnum
 from qdrant_client.models import Filter, FieldCondition, MatchValue
@@ -14,6 +14,10 @@ from qdrant_client.models import Filter, FieldCondition, MatchValue
 logging.getLogger("qdrant").setLevel(logging.ERROR)
 from transformers import logging
 logging.set_verbosity_error()
+
+# TODO config auslagern
+VECTOR_BLACKLIST = [PREFIX_TOKEN_UNIQUE]
+FUZZY_BLACKLIST = [PREFIX_TOKEN_UNIQUE]
 
 class TokenMarker(Enum):
     VENDOR = 1
@@ -56,6 +60,10 @@ def direct_lookup(token, prefix_token) -> list[dict[str,str]]|None:
     return None
 
 def lookup_similar(token, prefix_token, threshold:float, entity_filter=None) -> list[dict[str,str]]|None:
+
+    if prefix_token in FUZZY_BLACKLIST:
+        return None
+
     from rapidfuzz import process
     from rapidfuzz import fuzz
 
@@ -124,6 +132,8 @@ def lookup_similar(token, prefix_token, threshold:float, entity_filter=None) -> 
 
 def lookup_similiar_qadrant(token, prefix_token:str, threshold:float, entity_filter=None):
 
+    if prefix_token in VECTOR_BLACKLIST:
+        return None
     must = []
     if prefix_token == PREFIX_TOKEN_PRODUCT or prefix_token == PREFIX_TOKEN_BRAND:
         if entity_filter:
