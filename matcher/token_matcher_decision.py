@@ -327,16 +327,21 @@ class TokenMatcherDecision:
                 else:
                     score_max[token_pos_element] = token_meta[0]["score"]
 
+        # least scores and no direct hits dropped first
         sorted_dict = dict(sorted(score_max.items(), key=lambda item: item[1]))
 
+        # least scores can be reduced all
         if token_count_reducing <= len(sorted_dict):
-            removing = sorted_dict[0:token_count_reducing]
+            # only reduces least scores as much we need
+            removing = list(sorted_dict.keys())[0:token_count_reducing]
             for remove_item in removing:
                 tokens_positions.remove(remove_item)
             token_count_reducing = token_count_reducing - len(removing)
+        # there is more reducing necessary than least scores exists
         elif len(sorted_dict) > 0:
+            # it means they have to be reduces additional
             token_count_reducing = token_count_reducing - len(sorted_dict)
-            for remove_item in token_count_reducing:
+            for remove_item in list(sorted_dict.keys()):
                 tokens_positions.remove(remove_item)
 
         # cut end because position is deciding

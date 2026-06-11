@@ -1,6 +1,8 @@
 import json
 import logging
 import configparser
+import os
+
 from flask import Flask, jsonify, request, abort
 from matcher.token_matcher import TokenMatcher
 from matcher.token_matcher_decision import TokenMatcherDecision
@@ -8,8 +10,11 @@ from matcher.initialise.match_strategy_factory import match_strategy_factory
 
 app = Flask(__name__)
 
-handler = logging.FileHandler('error.log')
+handler = logging.FileHandler(os.path.join("logs", "error.log"))
 handler.setLevel(logging.ERROR)
+handler.setFormatter(logging.Formatter(
+    "%(asctime)s %(levelname)s [%(name)s] %(message)s"
+))
 app.logger.addHandler(handler)
 
 config_mapping_file = 'config/tests/config_data_mapping.json'
@@ -19,8 +24,8 @@ with open(config_mapping_file, 'r') as file:
 config = configparser.ConfigParser()
 config.read('config/api.ini')
 API_KEY = config['API']['API_KEY']
-API_PORT = int(config['API']['API_PORT'])
-API_HOST = config['API']['API_HOST']
+API_PORT = int(os.getenv("API_PORT", config['API']['API_PORT']))
+API_HOST = os.getenv("API_HOST", config['API']['API_HOST'])
 REDIS_HOST = config['API']['REDIS_HOST']
 REDIS_PORT = int(config['API']['REDIS_PORT'])
 
@@ -54,7 +59,11 @@ def product_type_with_fallbacks():
     token_matcher_decision = TokenMatcherDecision(match_strategies=strategies, config=config)
 
     token_matcher = TokenMatcher()
-    match = token_matcher.match_all_with_fallbacks(token_matcher_decision=token_matcher_decision, text=text)
+    try:
+        match = token_matcher.match_all_with_fallbacks(token_matcher_decision=token_matcher_decision, text=text)
+    except Exception as ex:
+        app.logger.exception("Error at match_all_with_fallbacks: %s", ex)
+        match = None
 
     if match is not None:
         matches.append(match)

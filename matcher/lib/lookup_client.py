@@ -12,8 +12,6 @@ from matcher.lib.token_enum import TokenSemanticEnum
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 
 logging.getLogger("qdrant").setLevel(logging.ERROR)
-from transformers import logging
-logging.set_verbosity_error()
 
 # TODO config auslagern
 VECTOR_BLACKLIST = [PREFIX_TOKEN_UNIQUE]
@@ -164,12 +162,13 @@ def lookup_similiar_qadrant(token, prefix_token:str, threshold:float, entity_fil
 
     collection_name = prefix_token.lstrip("L_E_").lstrip("L_T_").lower()
 
-    results: list[ScoredPoint] = qdrant_client.search(
+    results: list[ScoredPoint] = qdrant_client.query_points(
         collection_name=collection_name,
-        query_vector=model.encode(token),
+        query=model.encode(token),
         limit=10,
         query_filter=query_filter
-    )
+    ).points
+
     responses = []
     for result in results:
         # "result.score" is in range from 0.000... till 1.0

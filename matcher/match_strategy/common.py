@@ -1,4 +1,3 @@
-from qdrant_client.conversions.common_types import ScoredPoint
 from matcher.lib.lookup_client import TokenMarker
 from matcher.lib.token_enum import TokenSemanticEnum
 
@@ -9,7 +8,7 @@ def _filter_entities(entities, entity_filter: list[dict[str,str]]=[]) -> list[di
     entity_filtered = []
 
     for entity_item in entities:
-        if isinstance(entity_item, ScoredPoint):
+        if hasattr(entity_item, "payload"):
             entity_item = entity_item.payload
 
         excluded = False

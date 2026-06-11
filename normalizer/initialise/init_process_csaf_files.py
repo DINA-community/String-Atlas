@@ -48,7 +48,10 @@ def create_database(database_helper: CSAFDataBaseHelper, corpus_config:{}, df_co
     corp_manager.save_oui(database_helper=database_helper)
     corp_manager.save_product_type_and_regex(database_helper=database_helper, regex=regex)
 
-    import matcher.initialise.qadrant_collections
+    try:
+        import matcher.initialise.qadrant_collections
+    except ImportError:
+        print("Skipping qdrant vector initialization because optional vector dependencies are not installed.", flush=True)
     import matcher.initialise.create_lookup_tables
 
     physical_strategy = PhysicalUnitStringMinerStrategy()

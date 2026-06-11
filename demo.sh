@@ -12,7 +12,7 @@ end=2026   ## Set the default ending year for collecting documents
 csaf_cisagov() {
   git clone https://github.com/cisagov/CSAF
   mkdir -p resources/CSAF/csaf_files/OT/white
-  if check_response "Do you want to adjust the starting year (default: 2024) for CSAF resources [y/N]?" "N"; then
+  if check_response "Do you want to adjust the starting year (default: $start) for CSAF resources [y/N]?" "N"; then
     start=$(check_year)
     end=$(check_year $start)
   fi

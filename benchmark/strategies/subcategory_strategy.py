@@ -548,16 +548,19 @@ class FEmixedReplaceWhitespaces(BenchmarkSubcategoryStrategie):
         if len(special_chars_positions) == 0:
             return ["SKIP"]
 
-        queryset = []
-        for i in range(len(special_chars_positions)):
-            special_char = special_chars[i]
-            queryset.append(str(re.sub(r'\W', special_char, product)))
+        special_char = random.choice(special_chars)
+        pos = random.choice(special_chars_positions)
+        return [product[0:pos] + special_char + product[pos + 1:]]
+
+
+        # TODO delete
+        """
 
         if len(special_chars_positions) == 1:
             return queryset
 
         for a in range(len(special_chars_positions)):
-            special_char = special_chars[a]
+            special_char = product[special_chars_positions[i]]
             if a == len(special_chars_positions) - 1:
                 b = 0
             else:
@@ -574,5 +577,7 @@ class FEmixedReplaceWhitespaces(BenchmarkSubcategoryStrategie):
                 else:
                     result += char
             queryset.append(result)
-
+        
         return list(set(queryset))
+        
+        """

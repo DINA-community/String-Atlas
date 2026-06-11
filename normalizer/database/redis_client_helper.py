@@ -1,7 +1,6 @@
 import json
 import redis
 import pandas as pd
-from openpyxl import load_workbook
 import os
 
 from matcher.lib.token_enum import TokenSemanticEnum
@@ -82,38 +81,6 @@ def extract_rows_vendor_and_brand(documents):
     return rows
 
 
-def export_to_excel(rows, filename="output.xlsx"):
-    df = pd.DataFrame(rows)
-    df.to_excel(filename, index=False)
-    # --- Spaltenbreite setzen ---
-    wb = load_workbook(filename)
-    ws = wb.active
-    # ca. 100px ≈ 14–15 width
-    ws.column_dimensions["A"].width = 15
-    ws.column_dimensions["B"].width = 15
-    ws.column_dimensions["C"].width = 15
-
-    ws.auto_filter.ref = ws.dimensions
-
-    wb.save(filename)
-
-
-# --- Beispieldaten ---
-documents = [
-    {
-        "vendor_csaf_normalized": "Siemens",
-        "brand_csaf_normalized": "Scalance"
-    },
-    {
-        "vendor": "Siemens",
-        "product_type": "SCALANCE W748-1 RJ45",
-        "meta_info": {
-            "whole_tokens": ["SCALANCE", "W748-1", "RJ45"],
-            "types": ["brand", "series_and_sub_series", "feature_series"]
-        }
-    }
-]
-
 def extract_rows_product_type(documents):
     rows = []
 
@@ -148,11 +115,6 @@ def extract_rows_product_type(documents):
             for type in types:
                 if type in ["sub_series", "series_and_sub_series"]:
                     sub_series.append(tokens[pos])
-
-                    #if "S7-1500" == tokens[pos]:
-                        #found = False
-                        #print("S7-1500      <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-                        #print(vendor, brand, series)
                 pos = pos + 1
 
         annotations = meta.get("annotations", doc.get("annotations", {}))

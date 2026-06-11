@@ -1,16 +1,22 @@
 [project]
-name = "project-goetterdaemmerung"
+name = "goetterdammerung"
 version = "0.1.0"
+description = "Matcher and text-mining API"
 requires-python = ">=3.13"
 dependencies = [
-    "booktype>=1.5",
-    "flask>=3.1.3",
-    "fuzzywuzzy>=0.18.0",
-    "ipykernel>=7.2.0",
-    "pandas>=3.0.3",
-    "qdrant-client>=1.18.0",
-    "rapidfuzz>=3.14.5",
-    "requests>=2.34.1",
-    "surroundingkeys>=0.10",
-    "torch>=2.12.0",
+  "Flask",
+  "pandas>=2.2",
+  "pyspellchecker==0.7.3",
+  "rapidfuzz",
+  "redis>=7.4",
+  "requests",
 ]
+
+[project.optional-dependencies]
+vector = [
+  "qdrant-client==1.17.1",
+  "sentence-transformers",
+]
+
+[tool.uv]
+package = false

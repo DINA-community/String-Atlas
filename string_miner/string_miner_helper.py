@@ -1,9 +1,7 @@
 import json
 import re
-from fuzzywuzzy import fuzz
 import pandas
-from fuzzywuzzy import fuzz, process
-from rapidfuzz.distance.Levenshtein_py import similarity
+from rapidfuzz import fuzz
 from normalizer.semantics.semantics import Semantics
 
 
@@ -117,27 +115,23 @@ class StringMinerHelper:
 
             if len(vendor_tokens) > len(target_tokens):
                 longer = vendor
-                len_longer = len(vendor_tokens)
                 shorter = target_vendor
-                len_shorter = len(target_tokens)
 
             else:
-                len_longer = len(target_tokens)
-                len_shorter = len(vendor_tokens)
                 shorter = vendor
                 longer = target_vendor
 
             longer = longer.lower()
             shorter = shorter.lower()
 
-            if len_longer > 1 and len_shorter > 1:
+            if len(vendor_tokens) > 1 and len(target_tokens) > 1:
                 if longer.startswith(shorter):
                     similar_vendors.append(vendor)
                 else:
                     score = fuzz.ratio(target_vendor, vendor)
                     if score >= threshold:
                         similar_vendors.append(vendor)
-            elif len_longer > 1 and longer.startswith(shorter):
+            elif len(max(vendor_tokens, target_tokens, key=len)) > 1 and longer.startswith(shorter):
                 similar_vendors.append(vendor)
             else:
                 score_word = fuzz.ratio(longer, shorter)

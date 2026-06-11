@@ -11,6 +11,8 @@ services:
       - REDIS_HOST=redis2026
       - REDIS_PORT=6379
       - FLASK_ENV=development
+      - API_HOST=0.0.0.0
+      - API_PORT=5000
       - CSAF=/app/resources/CSAF
       - CSAF_FORCE_REINIT=False
       - CSAF_FOLDERS=2010-2026
@@ -23,7 +25,6 @@ services:
       - DOCKER_REDIS_PORT=6379
       - DOCKER_REDIS_DATABASE=0
     volumes:
-      - ../config/placeholder_keywords.toml:/app/config/placeholder_keywords.toml:Z
       - ../api_client:/app/api_client:Z
       - ../header_field_mapper:/app/header_field_mapper:Z
       - ../normalizer:/app/normalizer:Z
@@ -31,7 +32,9 @@ services:
       - ../matcher:/app/matcher:Z
       - ../api_server.py:/app/app.py:Z
       - ../resources:/app/resources:Z
+      - ../logs:/app/logs:Z
       - ../process_csaf_files.py:/app/process_csaf_files.py:Z
+      - ../string_helperfunctions.py:/app/string_helperfunctions.py:Z
     networks:
       - api-network
     depends_on:
@@ -59,7 +62,7 @@ services:
   qdrant:
     environment:
       - QDRANT__TELEMETRY_DISABLED=true
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant:v1.17
     container_name: qdrant2026
     ports:
       - "127.0.0.1:6333:6333"   # REST API

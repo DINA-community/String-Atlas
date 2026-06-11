@@ -19,7 +19,7 @@ from string_helperfunctions import find_file
 
 IS_LEV = False
 try:
-    import Levenshtein
+    from rapidfuzz.distance import Levenshtein
 except ModuleNotFoundError:
 
     IS_LEV = False
@@ -198,8 +198,7 @@ class StringMiner:
 
         for i in range(len(target_string) - len(search_string) + 1):
             substring = target_string[i: i + len(search_string)]
-            distance = Levenshtein.distance(substring, search_string)
-            similarity_score = 1 - (distance / max(len(substring), len(search_string)))
+            similarity_score = Levenshtein.normalized_similarity(substring, search_string)
 
             if similarity_score >= threshold:
                 similar_substrings.append((substring, similarity_score))
@@ -390,7 +389,7 @@ class StringMiner:
         if segment_type == 'alpha':
             return f'[A-Za-z]{{{length}}}'  # Buchstaben mit spezifischer Länge
         elif segment_type == 'digit':
-            return f'\d{{{length, length + digit_additional_allowed}}}'  # Ziffern mit spezifischer Länge
+            return f'\\d{{{length},{length + digit_additional_allowed}}}'  # Ziffern mit spezifischer Länge
         return ''
 
     # TODO tokens as parameter

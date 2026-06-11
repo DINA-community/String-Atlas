@@ -38,25 +38,29 @@ api-1       |  * Debug mode: on
 
 Open `csaf.ipynb` in your editor and run the test code.
 
+```bash
+cd benchmark_environment
+uv sync
+./run_jupyter.sh
+```
+
 ### Python Scripts
 
 ```bash
 cd cli_environment
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
+uv sync
 ```
 
 use the `run_query.py` to test single strings:
 
 ```bash
-python run_query.py "S7-1500, Siemens SIMATC S7-1500"
+uv run python run_query.py "S7-1500, Siemens SIMATC S7-1500"
 ```
 
 or `run_csv_benchmark.py` for a full benchmark test
 
 ```bash
-python run_csv_benchmark.py ../<Filename>
+uv run python run_csv_benchmark.py ../<Filename>
 ```
 
 At the moment, there are two files for testing: `test_strategy.csv` and `benchmark_selection.csv`

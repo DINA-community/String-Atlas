@@ -3,8 +3,6 @@ import re
 import pandas
 import uuid
 
-from numpy.testing.print_coercion_tables import print_new_cast_table
-
 from matcher.initialise.clients import redis_client
 from matcher.lib.lookup_table import redis_get_json
 from normalizer.database.csaf_database_helper import CSAFDataBaseHelper
@@ -267,6 +265,10 @@ class CorpusManager:
                 self.ngramm_index_by_vendor[vendor][path_text].append(following_token)
             path = path_next
 
+        terminal_path_text = " ".join(tokens)
+        if terminal_path_text not in self.ngramm_index_by_vendor[vendor]:
+            self.ngramm_index_by_vendor[vendor][terminal_path_text] = []
+
 
     def create_ngramm_for_vendor(self, vendor, column:str):
         self.ngramm_index_by_vendor[vendor] = {}
@@ -458,7 +460,7 @@ class CorpusManager:
         else:
             brand_next_token = []
             for ngram_key in self.ngramm_index_by_vendor[vendor_tree.get_vendor()].keys():
-                if ngram_key.startswith(brand) and ngram_key.endswith(next_token_value) and ngram_key.count(" ") == level_gramm - 2:
+                if ngram_key.startswith(brand) and ngram_key.endswith(next_token_value) and ngram_key.count(" ") == level_gramm - 1:
                     brand_next_token.extend(self.ngramm_index_by_vendor[vendor_tree.get_vendor()][ngram_key])
 
         brand_next_token = list(set(brand_next_token))
@@ -553,7 +555,7 @@ class CorpusManager:
 
         # not group able meaning next token
         for key, next_token in no_matches.items():
-            next_type_for_unique = SemanticsState.predict_new_state(types_before, False)
+            next_type_for_unique = SemanticsState.predict_new_state(types_before, False, next_token=next_token)
             types_for_unique = types_before.copy()
             types_for_unique.extend(next_type_for_unique)
 
@@ -588,4 +590,3 @@ class CorpusManager:
 
             print(f'after cleanup vendor: {vendor}')
             #self.product_trees[vendor].after_cleanup()
-

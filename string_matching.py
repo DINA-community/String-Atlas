@@ -2,10 +2,7 @@
 
 import re
 import pandas as pd
-from fuzzywuzzy import fuzz  # License?
-from Levenshtein import distance as levenshtein_distance  # TODO geht nicht
-from Levenshtein import ratio as levenshtein_ratio  # TODO geht nicht
-from collections import Counter
+from rapidfuzz import fuzz
 
 
 def tokenize_string(text):

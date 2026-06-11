@@ -139,5 +139,5 @@ def find_by_tokens(df_all: pandas.DataFrame, vendor:str, words:list[str]) -> lis
     mask = df_all["vendor"].str.lower().eq(vendor.strip().lower())
     text = df_all["product_name"].str.lower()
     for word in words:
-        mask = mask & text.str.contains(word.strip().lower(), na=False)
+        mask = mask & text.str.contains(word.strip().lower(), na=False, regex=False)
     return list(df_all.loc[mask, ["product_id", "csaf_document_id"]].itertuples(index=False, name=None))

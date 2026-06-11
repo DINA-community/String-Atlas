@@ -1,3 +1,6 @@
+from string_miner.string_type import StringType
+
+
 class Semantics:
     TOKEN_VENDOR = 'vendor'
     TOKEN_VENDOR_LEGAL = 'vendor_legal'
@@ -98,24 +101,32 @@ class SemanticsState:
 
 
     @staticmethod
-    def predict_new_state(states_before, is_group_member):
+    def predict_new_state(states_before, is_group_member, next_token=None):
 
         if len(states_before) == 0:
             raise ValueError('every item type have to be iniated')
         last_state = states_before[-1]
 
+        token_is_numeric = (
+            next_token is not None
+            and next_token.get('segment_types') == [StringType.TYPE_NUMBER]
+        )
+
         if last_state == Semantics.TOKEN_BRAND:
-            if is_group_member:
-                return [Semantics.TOKEN_SERIES_AND_SUB_SERIES_MIX]
-            else:
+            if not is_group_member:
                 return [Semantics.TOKEN_SERIES]
+            else:
+                return [Semantics.TOKEN_SERIES_AND_SUB_SERIES_MIX]
+
         elif last_state == Semantics.TOKEN_SERIES:
-            if is_group_member:
+            if token_is_numeric or is_group_member:
                 return [Semantics.TOKEN_SUB_SERIES]
             else:
                 return [Semantics.TOKEN_SERIES]
         elif last_state == Semantics.TOKEN_SERIES_AND_SUB_SERIES_MIX or last_state == Semantics.TOKEN_SUB_SERIES:
-            if is_group_member:
+            if token_is_numeric:
+                return [Semantics.TOKEN_SUB_SERIES]
+            elif is_group_member:
                 return [Semantics.TOKEN_FEATURE_GROUP]
             else:
                 return [Semantics.TOKEN_FEATURE_SERIE]

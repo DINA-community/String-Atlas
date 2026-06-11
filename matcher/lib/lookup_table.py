@@ -166,6 +166,19 @@ def create_vendor_and_brand_lookup_tables(df):
             redis_client.set(key_token, json.dumps(brand_entities))
 
 
+def _get_tokens(value):
+    if value is None:
+        return []
+    if isinstance(value, float) and value != value:
+        return []
+    if isinstance(value, list):
+        return [str(token).strip() for token in value if str(token).strip()]
+    token = str(value).strip()
+    if not token:
+        return []
+    return [token]
+
+
 def create_product_lookup_tables(df):
     """
     create lookup tables for product types
@@ -176,98 +189,70 @@ def create_product_lookup_tables(df):
     product_entity_index: dict[str, bool] = {}
     token_entity_index: dict[str, list[str]] = {}
     token_entity_index_plus_vendor: dict[str, list[str]] = {}
-    subseries = df[TokenSemanticEnum.SUBSERIES.value].explode().unique().tolist()
-    for subserie in subseries:
+    for _, row_data in df.iterrows():
+        vendor = row_data.get(TokenSemanticEnum.VENDOR.value)
+        brand_token = row_data.get(TokenSemanticEnum.BRAND.value)
+        series_token = row_data.get(TokenSemanticEnum.SERIES.value, [])
+        subseries_token = row_data.get(TokenSemanticEnum.SUBSERIES.value, [])
+        unique_tokens = row_data.get(TokenSemanticEnum.UNIQUE.value, [])
+        product_tokens = series_token + subseries_token
 
-        # handle before, supposed not to land in this column
-        if isinstance(subserie, float):
+        if not brand_token or not product_tokens:
             continue
 
-        tmp = df.explode(TokenSemanticEnum.SUBSERIES.value)
-        vendor = tmp[tmp[TokenSemanticEnum.SUBSERIES.value] == subserie][TokenSemanticEnum.VENDOR.value].unique().tolist()
+        product_key = " ".join(product_tokens)
 
-        if isinstance(vendor, list):
-            vendor = vendor[0]
-        series = (
-            tmp[tmp[TokenSemanticEnum.SUBSERIES.value] == subserie][TokenSemanticEnum.SERIES.value]
-            .explode()
-            .dropna()
-            .astype(str)
-            .str.strip()
-            .loc[lambda x: x != ""]
-            .unique()
-            .tolist()
-        )
+        brand = " ".join(brand_token)
+        series = " ".join(series_token)
+        subseries = " ".join(subseries_token)
+        brand_entity_id = normalized_brand_entity_key(brand)
+        norm_product_entity_key = normalized_product_entity_key(vendor, brand, product_key)
 
-        brands = tmp[tmp[TokenSemanticEnum.SUBSERIES.value] == subserie][TokenSemanticEnum.BRAND.value].tolist()
-        #uniques = tmp[tmp[TokenSemanticEnum.SUBSERIES.value] == subserie][TokenSemanticEnum.UNIQUE.value].tolist()
+        for unique in unique_tokens:
+            key_token_unique = normalized_unique_token_key(unique)
+            unique_token_index[key_token_unique] = [norm_product_entity_key]
 
-        for brand in brands:
-            if not isinstance(brand, list):
-                continue
-            brand_entity_id = normalized_brand_entity_key(" ".join(brand))
+        if norm_product_entity_key not in product_entity_index:
+            product_entity_index[norm_product_entity_key] = True
 
-            product_key = " ".join(series + [subserie])
-            norm_product_entity_key = normalized_product_entity_key(vendor, " ".join(brand), product_key)
+            row = {TokenSemanticEnum.BRAND_ID.value: brand_entity_id,
+                   TokenSemanticEnum.VENDOR_ID.value: normalized_vendor_entity_key(vendor),
+                   TokenSemanticEnum.BRAND.value: brand,
+                   TokenSemanticEnum.VENDOR.value: vendor,
+                   TokenSemanticEnum.SERIES.value: series,
+                   TokenSemanticEnum.SUBSERIES.value: subseries,
+                   TokenSemanticEnum.NORMALIZED.value: product_key,
+                   TokenSemanticEnum.CSAF_REF.value: find_by_tokens(df_all=df_filtered, vendor=vendor,
+                                                              words=brand_token + product_tokens)
+                   }
+            redis_client.set(norm_product_entity_key, json.dumps(row))
 
-            """
-            for unique in uniques:
-                if len(unique) > 0 and isinstance(unique[0], str):
-                    unique = unique[0]
-                    key_token_unique = normalized_unique_token_key(unique)
-                    unique_token_index[key_token_unique] = [norm_product_entity_key]
-            """
+            if brand_entity_id not in brands_safety:
+                brands_safety[brand_entity_id] = 1
+            else:
+                brands_safety[brand_entity_id] += 1
 
-            if norm_product_entity_key not in product_entity_index:
-                product_entity_index[norm_product_entity_key] = True
+        for token in product_tokens:
+            token_normalized = normalized_product_token_key(token)
+            if token_normalized not in token_entity_index:
+                token_entity_index[token_normalized] = []
+            if norm_product_entity_key not in token_entity_index[token_normalized]:
+                token_entity_index[token_normalized].append(norm_product_entity_key)
 
-                normalized = []
-                if len(series) > 0:
-                    normalized = normalized + series
-                if len(subserie) > 0:
-                    normalized = normalized + [subserie]
-
-                row = {TokenSemanticEnum.BRAND_ID.value: brand_entity_id,
-                       TokenSemanticEnum.VENDOR_ID.value: normalized_vendor_entity_key(vendor),
-                       TokenSemanticEnum.BRAND.value: " ".join(brand),
-                       TokenSemanticEnum.VENDOR.value: vendor,
-                       TokenSemanticEnum.SERIES.value: " ".join(series),
-                       TokenSemanticEnum.SUBSERIES.value: subserie,
-                       TokenSemanticEnum.NORMALIZED.value: " ".join(normalized),
-                       TokenSemanticEnum.CSAF_REF.value: find_by_tokens(df_all=df_filtered, vendor=vendor,
-                                                                  words=brand + normalized)
-                       }
-                redis_client.set(norm_product_entity_key, json.dumps(row))
-
-                if brand_entity_id not in brands_safety:
-                    brands_safety[brand_entity_id] = 1
-                else:
-                    brands_safety[brand_entity_id] += 1
-
-            for token in series + [subserie]:
-
-                token = str(token)
-
-                token_normalized = normalized_product_token_key(token)
-                if token_normalized not in token_entity_index:
-                    token_entity_index[token_normalized] = []
-                if norm_product_entity_key not in token_entity_index[token_normalized]:
-                    token_entity_index[token_normalized].append(norm_product_entity_key)
-
-                token_normalized_plus_vendor = normalized_product_token_plus_vendor_key(vendor, token)
-
-                if token_normalized_plus_vendor not in token_entity_index_plus_vendor:
-                    token_entity_index_plus_vendor[token_normalized_plus_vendor] = []
+            token_normalized_plus_vendor = normalized_product_token_plus_vendor_key(vendor, token)
+            if token_normalized_plus_vendor not in token_entity_index_plus_vendor:
+                token_entity_index_plus_vendor[token_normalized_plus_vendor] = []
+            if norm_product_entity_key not in token_entity_index_plus_vendor[token_normalized_plus_vendor]:
                 token_entity_index_plus_vendor[token_normalized_plus_vendor].append(norm_product_entity_key)
 
-        for key_token, product_entity_list in token_entity_index.items():
-            redis_client.set(key_token, json.dumps(product_entity_list))
+    for key_token, product_entity_list in token_entity_index.items():
+        redis_client.set(key_token, json.dumps(product_entity_list))
 
-        for key_token, product_entity_list in token_entity_index_plus_vendor.items():
-            redis_client.set(key_token, json.dumps(product_entity_list))
+    for key_token, product_entity_list in token_entity_index_plus_vendor.items():
+        redis_client.set(key_token, json.dumps(product_entity_list))
 
-        for key_token, linked_entities in unique_token_index.items():
-            redis_client.set(key_token, json.dumps(linked_entities))
+    for key_token, linked_entities in unique_token_index.items():
+        redis_client.set(key_token, json.dumps(linked_entities))
 
     for brand_entity_key,count in brands_safety.items():
         if count > 1:
@@ -319,6 +304,9 @@ def is_brand_of_product(brand_entity, product_entity):
         return False
     return True
 
+def cleanup_general_producttypes_in_lookup_tables(batch_size=1000):
+    # TODO
+    pass
 
 # TOOD explain in masterwork
 def cleanup_brands_and_producttypes_in_lookup_tables(batch_size=1000) -> None:

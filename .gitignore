@@ -195,7 +195,8 @@ matcher/tests/test_files/a.xlsx
 /test_environment/.~lock.output.xlsx#
 /test_environment/output.xlsx
 /test_environment/test_strategy_try.csv
-/uv.lock
+uv.lock
+error.*
 /benchmark_environment/system_*.csv
 /benchmark_environment/localtest.sql
 /benchmark_environment/output.xlsx

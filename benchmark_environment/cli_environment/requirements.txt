@@ -1,5 +1,4 @@
 requests
-fuzzywuzzy
 rapidfuzz
 surroundingkeys
 ipykernel
