@@ -63,9 +63,7 @@ or `run_csv_benchmark.py` for a full benchmark test
 uv run python run_csv_benchmark.py ../<Filename>
 ```
 
-At the moment, there are two files for testing: `test_strategy.csv` and `benchmark_selection.csv`
-
-When running the scripts later, ensure that the .venv is active. Otherwise, the scripts might not work.
+At the moment, there are two files for testing: `test_strategy.csv` and `benchmark_selection.csv`.
 
 ## Setup Benchmark Files
 

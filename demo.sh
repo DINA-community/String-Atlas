@@ -10,12 +10,13 @@ end=2026   ## Set the default ending year for collecting documents
 
 
 csaf_cisagov() {
-  git clone https://github.com/cisagov/CSAF
-  mkdir -p resources/CSAF/csaf_files/OT/white
+  #git clone https://github.com/cisagov/CSAF
+  #mkdir -p resources/CSAF/csaf_files/OT/white
   if check_response "Do you want to adjust the starting year (default: $start) for CSAF resources [y/N]?" "N"; then
     start=$(check_year)
     end=$(check_year $start)
   fi
+  echo "CSAF files from $start to $end are used."
   for year in $(seq $start $end); do
     if [ -d "CSAF/csaf_files/OT/white/$year" ]; then
       cp -R "CSAF/csaf_files/OT/white/$year" "resources/CSAF/csaf_files/OT/white/$year"
@@ -49,14 +50,15 @@ check_year(){
           echo "$default_start"
           echo "Default value $default_start is used." >&2
           return 0
-      fi
-      if [[ "$reply" =~ ^20[1-9][0-9]$ ]] && (( reply <= default_end )) ; then
+      else
+          if [[ "$reply" =~ ^20[1-9][0-9]$ ]] && (( reply <= default_end )) ; then
           echo "$reply"
           return 0
+          fi
       fi
       echo "Please enter a year between $first and $default_end." >&2
     else # end year
-      read -rp "Please provide the end year [$start_year-$default_end]: " reply </dev/tty
+      read -rp "Please provide the end year [$start_year - $default_end]: " reply </dev/tty
       if [ -z "$reply" ]; then
           echo "$default_end"
           echo "Default value $default_end end is used." >&2

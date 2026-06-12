@@ -201,12 +201,12 @@ error.*
 /benchmark_environment/localtest.sql
 /benchmark_environment/output.xlsx
 benchmark_environment/results
-benchmark_environment/*.svg
+!benchmark_environment/*.svg
 test_environment/.~lock.test_strategy.csv#
 benchmark_environment/*.csv
 !test_strategy.csv
 !benchmark_selection.csv
 benchmark_selection.txt
 issues.md
-benchmark_environment/benchmark_strategy_resulter.py
+!benchmark_environment/benchmark_strategy_resulter.py
 
