@@ -10,13 +10,14 @@ end=2026   ## Set the default ending year for collecting documents
 
 
 csaf_cisagov() {
-  #git clone https://github.com/cisagov/CSAF
-  #mkdir -p resources/CSAF/csaf_files/OT/white
+  git clone https://github.com/cisagov/CSAF
+  mkdir -p resources/CSAF/csaf_files/OT/white
   if check_response "Do you want to adjust the starting year (default: $start) for CSAF resources [y/N]?" "N"; then
     start=$(check_year)
     end=$(check_year $start)
   fi
   echo "CSAF files from $start to $end are used."
+  sleep 2
   for year in $(seq $start $end); do
     if [ -d "CSAF/csaf_files/OT/white/$year" ]; then
       cp -R "CSAF/csaf_files/OT/white/$year" "resources/CSAF/csaf_files/OT/white/$year"
@@ -95,9 +96,8 @@ check_response() {
 main(){
   # get CSAF documents from cisagov
   csaf_cisagov
+  uv lock
   ensure_compose
 }
-
-
 
 main "$@"
