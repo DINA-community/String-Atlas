@@ -16,6 +16,8 @@ csaf_cisagov() {
     start=$(check_year)
     end=$(check_year $start)
   fi
+  echo "CSAF files from $start to $end are used."
+  sleep 2
   for year in $(seq $start $end); do
     if [ -d "CSAF/csaf_files/OT/white/$year" ]; then
       cp -R "CSAF/csaf_files/OT/white/$year" "resources/CSAF/csaf_files/OT/white/$year"
@@ -49,14 +51,15 @@ check_year(){
           echo "$default_start"
           echo "Default value $default_start is used." >&2
           return 0
-      fi
-      if [[ "$reply" =~ ^20[1-9][0-9]$ ]] && (( reply <= default_end )) ; then
+      else
+          if [[ "$reply" =~ ^20[1-9][0-9]$ ]] && (( reply <= default_end )) ; then
           echo "$reply"
           return 0
+          fi
       fi
       echo "Please enter a year between $first and $default_end." >&2
     else # end year
-      read -rp "Please provide the end year [$start_year-$default_end]: " reply </dev/tty
+      read -rp "Please provide the end year [$start_year - $default_end]: " reply </dev/tty
       if [ -z "$reply" ]; then
           echo "$default_end"
           echo "Default value $default_end end is used." >&2
@@ -93,9 +96,8 @@ check_response() {
 main(){
   # get CSAF documents from cisagov
   csaf_cisagov
+  uv lock
   ensure_compose
 }
-
-
 
 main "$@"
