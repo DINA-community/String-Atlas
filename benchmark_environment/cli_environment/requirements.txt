@@ -1,5 +1,0 @@
-requests
-rapidfuzz
-surroundingkeys
-ipykernel
-pandas

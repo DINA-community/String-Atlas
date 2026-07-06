@@ -209,4 +209,5 @@ benchmark_environment/*.csv
 benchmark_selection.txt
 issues.md
 !benchmark_environment/benchmark_strategy_resulter.py
+local/
 
