@@ -1,0 +1,83 @@
+# List of synonyms for attributes used in the NetBox data model.
+# The first entry is "alias" for the attribute itself 
+# Note: the first value of every entry will be used for the normalizer
+# Note: The normalizer should used after string cleaning!
+Manufacturer:
+  alias:
+    - 'Manufacturer'
+    - 'vendor'
+    - 'Hersteller'
+  Siemens: 
+    - "Siemens"
+    - "Siemens Healthineers"
+  Phoenix Contact:
+    - "Phoenix Contact"
+    - "PXC"
+    - "Phoenix Contact GmbH"
+  ABB:
+    - "ABB"
+    - "Asea Brown Boveri"
+  franklin fueling systems:
+    - "franklin fueling systems"
+    - "franklin"
+  GE digital: 
+    - "GE digital"
+    - "GE"
+  GE healthcare:
+    - "GE healthcare"
+    - "GE"
+  General electrics: 
+    - "General electrics" 
+    - "general"
+  General Motors:
+    - "general motors"
+    - "general"
+  Johnson & Johnson: 
+    - "Johnson & Johnson"
+    - "Johnson"
+  Johnson Controls:
+    - "Johnson Controls"
+    - "Johnson"
+  LS Electric:
+    - "LS Electric"
+    - "LS"
+  LS industrial system:
+    - "LS industrial system"
+    - "LS"
+  Object Computing:
+    - "Object"
+  siemens energy: 
+    - "siemens energy"
+    - "siemens"
+Device_Role:
+  alias:
+    - 'device_role'
+    - 'device role'
+  RTU-PLC:
+    - 'RTU-PLC'
+    - 'RTU PLC'
+    - 'PLC'
+    - 'SPS'
+    - 'speicherprogrammierbare Steuerung'
+    - 'programmable logic controller'
+    - 'Controller_PLC/RTU'
+    - 'RTU'
+  HMI-Field:
+    - 'HMI-Field'
+    - 'HMI Field'
+    - 'Human Machine Interface'
+    - 'Bedienstation'
+  Actuator:
+    - 'Actuator'
+    - 'Aktor'
+    - 'actor'
+  Sensor:
+    - 'sensor'
+  SCADA:
+    - 'SCADA'
+Device_Family:
+  alias:
+    - 'device_family'
+    - 'device family'
+    - 'product family'
+    - 'product type'

@@ -1,0 +1,2513 @@
+{
+  "documential": {
+    "acknowledgments": [
+      {
+        "names": [
+          "Gjoko Krstikj"
+        ],
+        "organization": "Zero Science Lab",
+        "summary": "reporting the vulnerabilities through responsible disclosure."
+      }
+    ],
+    "category": "csaf_security_advisory",
+    "csaf_version": "2.0",
+    "distribution": {
+      "text": "Disclosure is not limited",
+      "tlp": {
+        "label": "WHITE",
+        "url": "https://us-cert.cisa.gov/tlp/"
+      }
+    },
+    "lang": "en",
+    "notes": [
+      {
+        "category": "summary",
+        "text": "ABB became aware of vulnerabilities in the product versions listed as affected in the advisory. \nASPECT devices are not intended to be internet-facing. A product advisory issued in June 2023 informed cus-tomers of this parameter.\nAn attacker can successfully exploit these vulnerabilities and could take remote control of the product and po-tentially insert and run arbitrary code. \nABB requires, as noted in previous security advisories and user documentation, that ASPECT should not be exposed to the internet or any other insecure network.\n\nNote: In order to exploit an ASPECT, an attacker would need a misconfigured system.",
+        "title": "Summary"
+      },
+      {
+        "category": "other",
+        "text": "For any installation of software-related ABB products and especially for products in scope of the ASPECT product line, we strongly recommend the following (non-exhaustive) list of cyber security practices:\n\u2022\tEnsure that all ASPECT products are upgraded to the latest firmware version. Please find the latest version of ASPECT firmware on the respective product homepage\n\n\n\u2022\tIsolate special purpose networks (e.g. for automation systems) and remote devices behind firewalls and separate them from any general-purpose network (e.g. office or home networks).\n\n\n\u2022\tInstall physical controls so no unauthorized personnel can access your devices, components, peripheral equipment, and networks.\n\n\n\u2022\tNever connect programming software or computers containing programming software to any network other than the network for the devices that it is intended for.\n\n\n\u2022\tScan all data imported into your environment before use to detect potential malware infections.\n\n\n\u2022\tMinimize network exposure for all ASPECT ports and endpoints to ensure that they are not accessible directly from the Internet. \n\n\n\u2022\tEnsure all nodes are always up to date in terms of installed software, operating system, and firmware patches as well as anti-virus and firewall.\n\n\n\u2022\tWhen remote access is required, use secure methods, such as Virtual Private Networks (VPNs). Recognize that VPNs may have vulnerabilities and should be updated to the most current version available.\n",
+        "title": "General security recommendations"
+      },
+      {
+        "category": "other",
+        "text": "For additional instructions and support please contact your local ABB service organization. For contact information, see www.abb.com/contactcenters.\nInformation about ABB\u2019s cyber security program and capabilities can be found at www.abb.com/cybersecurity\n",
+        "title": "Support"
+      },
+      {
+        "category": "legal_disclaimer",
+        "text": "The information in this document is subject to change without notice, and should not be construed as a commitment by ABB.\nABB provides no warranty, express or implied, including warranties of merchantability and fitness for a particular purpose, for the information contained in this document, and assumes no responsibility for any errors that may appear in this document. In no event shall ABB or any of its suppliers be liable for direct, indirect, special, incidental or consequential damages of any nature or kind arising from the use of this document, or from the use of any hardware or software described in this document, even if ABB or its suppliers have been advised of the possibility of such damages.\nThis document and parts hereof must not be reproduced or copied without written permission from ABB, and the contents hereof must not be imparted to a third party nor used for any unauthorized purpose.\nAll rights to registrations and trademarks reside with their respective owners.\n",
+        "title": "Notice"
+      },
+      {
+        "category": "general",
+        "text": "Users accessing ASPECT remotely shall do this using a VPN Gateway allowing access to the particular network segment where ASPECT is installed and configured. \nNote: it is crucial that the VPN Gateway and Network is setup in accordance with best industry standards and maintained in terms of security patches for all related components. \n",
+        "title": "Workarounds"
+      },
+      {
+        "category": "general",
+        "text": "The vulnerabilities reported in scope of this document are only exploitable if attackers can access the network segment where ASPECT is installed and exposed directly to the internet. ABB therefore recommends the following guidelines in order to protect customers networks:\n\n\n\u2022\tASPECT devices should never be exposed directly to the Internet either via a direct ISP connection nor via NAT port forwarding. If remote access to an ASPECT system is a customer requirement, the system shall operate behind a firewall. Users accessing ASPECT remotely shall do this using a VPN Gateway allowing access to the particular network segment where ASPECT is installed and configured. \n\n\n\u2022\tNote: it is crucial that the VPN Gateway and Network is setup in accordance with best industry standards and maintained in terms of security patches for all related components. \n\n\n\u2022\tABB System Integrators shall change default passwords if they are still in use. \n\u2022\tEnsure that all ASPECT products are upgraded to the latest firmware version. Please find the latest version of ASPECT firmware on the respective product homepage\n",
+        "title": "Mitigating factors"
+      },
+      {
+        "category": "legal_disclaimer",
+        "text": "All information products included in https://us-cert.cisa.gov/ics are provided \"as is\" for informational purposes only. The Department of Homeland Security (DHS) does not provide any warranties of any kind regarding any information contained within. DHS does not endorse any commercial product or service, referenced in this product or otherwise. Further dissemination of this product is governed by the Traffic Light Protocol (TLP) marking in the header. For more information about TLP, see https://us-cert.cisa.gov/tlp/.",
+        "title": "Legal Notice"
+      },
+      {
+        "category": "other",
+        "text": "This CISA CSAF advisory was converted from ABB PSIRT's CSAF advisory.",
+        "title": "Advisory Conversion Disclaimer"
+      },
+      {
+        "category": "other",
+        "text": "Critical Manufacturing",
+        "title": "Critical infrastructure sectors"
+      },
+      {
+        "category": "other",
+        "text": "Worldwide",
+        "title": "Countries/areas deployed"
+      },
+      {
+        "category": "other",
+        "text": "Switzerland",
+        "title": "Company headquarters location"
+      },
+      {
+        "category": "general",
+        "text": "CISA recommends users take defensive measures to minimize the exploitation risk of this vulnerability.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "Minimize network exposure for all control system devices and/or systems, and ensure they are not accessible from the internet.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "Locate control system networks and remote devices behind firewalls and isolate them from business networks.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most recent version available. Also recognize VPN is only as secure as its connected devices.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov. Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets. Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents.",
+        "title": "Recommended Practices"
+      }
+    ],
+    "publisher": {
+      "category": "other",
+      "contact_details": "central@cisa.dhs.gov",
+      "name": "CISA",
+      "namespace": "https://www.cisa.gov/"
+    },
+    "references": [
+      {
+        "category": "self",
+        "summary": "ICS Advisory ICSA-25-007-01 JSON",
+        "url": "https://raw.githubusercontent.com/cisagov/CSAF/develop/csaf_files/OT/white/2025/icsa-25-007-01.json"
+      },
+      {
+        "summary": "ABB strongly advises customers and system integrators to follow the instructions documented in: FBXi, CBXi and ASPECT\u00ae SOLUTIONS, which can be downloaded from the ABB library. ",
+        "url": "https://search.abb.com/library/Download.aspx?DocumentID=HT0038&LanguageCode=en&DocumentPartId=&Action=Launch"
+      },
+      {
+        "summary": "ABB CYBERSECURITY ADVISORY - PDF version ",
+        "url": "https://search.abb.com/library/Download.aspx?DocumentID=9AKK108469A7497&LanguageCode=en&DocumentPartId=&Action=Launch"
+      },
+      {
+        "category": "self",
+        "summary": "ICS Advisory ICSA-25-007-01 - Web Version",
+        "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-007-01"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/uscert/ics/alerts/ICS-ALERT-10-301-01"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/resources-tools/resources/ics-recommended-practices"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/topics/industrial-control-systems"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://us-cert.cisa.gov/sites/default/files/recommended_practices/NCCIC_ICS-CERT_Defense_in_Depth_2016_S508C.pdf"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/sites/default/files/publications/Cybersecurity_Best_Practices_for_Industrial_Control_Systems.pdf"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/uscert/ics/tips/ICS-TIP-12-146-01B"
+      }
+    ],
+    "title": "ABB ASPECT System",
+    "tracking": {
+      "current_release_date": "2024-12-05T00:30:00.000000Z",
+      "generator": {
+        "date": "2024-12-06T05:34:56.134000Z",
+        "engine": {
+          "name": "CISA CSAF Generator",
+          "version": "1.0.0"
+        }
+      },
+      "id": "ICSA-25-007-01",
+      "initial_release_date": "2024-07-03T00:30:00.000000Z",
+      "revision_history": [
+        {
+          "date": "2024-07-03T00:30:00.000000Z",
+          "number": "1.0.0",
+          "summary": "Initial version. "
+        },
+        {
+          "date": "2024-08-20T00:30:00.000000Z",
+          "number": "2.0.0",
+          "summary": "Update of advisory due to availability of ASPECT version 3.08.02"
+        },
+        {
+          "date": "2024-11-28T00:30:00.000000Z",
+          "number": "3.0.0",
+          "summary": "Update of advisory due to availability of ASPECT version 3.08.03"
+        },
+        {
+          "date": "2024-12-05T00:30:00.000000Z",
+          "number": "4.0.0",
+          "summary": "Acknowledgment name correction "
+        }
+      ],
+      "status": "final",
+      "version": "4.0.0"
+    }
+  },
+  "product_tree": {
+    "branches": [
+      {
+        "branches": [
+          {
+            "branches": [
+              {
+                "branches": [
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.08.02",
+                    "product": {
+                      "name": "ASP-ENT-x <=3.08.02",
+                      "product_id": "CSAFPID-0001"
+                    }
+                  },
+                  {
+                    "category": "product_version",
+                    "name": "3.08.03",
+                    "product": {
+                      "name": "ASP-ENT-x 3.08.03",
+                      "product_id": "CSAFPID-0002"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.08.01",
+                    "product": {
+                      "name": "ASP-ENT-x <=3.08.01",
+                      "product_id": "CSAFPID-0003"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": ">=3.08.02",
+                    "product": {
+                      "name": "ASP-ENT-x 3.08.02 and above",
+                      "product_id": "CSAFPID-0004"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.07.02",
+                    "product": {
+                      "name": "ASP-ENT-x <=3.07.02",
+                      "product_id": "CSAFPID-0005"
+                    }
+                  },
+                  {
+                    "category": "product_version",
+                    "name": "3.08.00",
+                    "product": {
+                      "name": "ASP-ENT-x 3.08.00",
+                      "product_id": "CSAFPID-0006"
+                    }
+                  }
+                ],
+                "category": "product_name",
+                "name": "ASP-ENT-x"
+              }
+            ],
+            "category": "product_family",
+            "name": "ASPECT\u00ae-Enterprise"
+          },
+          {
+            "branches": [
+              {
+                "branches": [
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.08.02",
+                    "product": {
+                      "name": "NEX-2x <=3.08.02",
+                      "product_id": "CSAFPID-0007"
+                    }
+                  },
+                  {
+                    "category": "product_version",
+                    "name": "3.08.03",
+                    "product": {
+                      "name": "NEX-2x 3.08.03",
+                      "product_id": "CSAFPID-0008"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.08.01",
+                    "product": {
+                      "name": "NEX-2x <=3.08.01",
+                      "product_id": "CSAFPID-0009"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": ">=3.08.02",
+                    "product": {
+                      "name": "NEX-2x 3.08.02 and above",
+                      "product_id": "CSAFPID-0010"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.07.02",
+                    "product": {
+                      "name": "NEX-2x <=3.07.02",
+                      "product_id": "CSAFPID-0011"
+                    }
+                  },
+                  {
+                    "category": "product_version",
+                    "name": "3.08.00",
+                    "product": {
+                      "name": "NEX-2x 3.08.00",
+                      "product_id": "CSAFPID-0012"
+                    }
+                  }
+                ],
+                "category": "product_name",
+                "name": "NEX-2x"
+              },
+              {
+                "branches": [
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.08.02",
+                    "product": {
+                      "name": "NEXUS-3-x <=3.08.02",
+                      "product_id": "CSAFPID-0013"
+                    }
+                  },
+                  {
+                    "category": "product_version",
+                    "name": "3.08.03",
+                    "product": {
+                      "name": "NEXUS-3-x 3.08.03",
+                      "product_id": "CSAFPID-0014"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.08.01",
+                    "product": {
+                      "name": "NEXUS-3-x <=3.08.01",
+                      "product_id": "CSAFPID-0015"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": ">=3.08.02",
+                    "product": {
+                      "name": "NEXUS-3-x 3.08.02 and above",
+                      "product_id": "CSAFPID-0016"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.07.02",
+                    "product": {
+                      "name": "NEXUS-3-x <=3.07.02",
+                      "product_id": "CSAFPID-0017"
+                    }
+                  },
+                  {
+                    "category": "product_version",
+                    "name": "3.08.00",
+                    "product": {
+                      "name": "NEXUS-3-x 3.08.00",
+                      "product_id": "CSAFPID-0018"
+                    }
+                  }
+                ],
+                "category": "product_name",
+                "name": "NEXUS-3-x"
+              }
+            ],
+            "category": "product_family",
+            "name": "NEXUS Series"
+          },
+          {
+            "branches": [
+              {
+                "branches": [
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.08.02",
+                    "product": {
+                      "name": "MAT-x <=3.08.02",
+                      "product_id": "CSAFPID-0019"
+                    }
+                  },
+                  {
+                    "category": "product_version",
+                    "name": "3.08.03",
+                    "product": {
+                      "name": "MAT-x 3.08.03",
+                      "product_id": "CSAFPID-0020"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.08.01",
+                    "product": {
+                      "name": "MAT-x <=3.08.01",
+                      "product_id": "CSAFPID-0021"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": ">=3.08.02",
+                    "product": {
+                      "name": "MAT-x 3.08.02 and above",
+                      "product_id": "CSAFPID-0022"
+                    }
+                  },
+                  {
+                    "category": "product_version_range",
+                    "name": "<=3.07.02",
+                    "product": {
+                      "name": "MAT-x <=3.07.02",
+                      "product_id": "CSAFPID-0023"
+                    }
+                  },
+                  {
+                    "category": "product_version",
+                    "name": "3.08.00",
+                    "product": {
+                      "name": "MAT-x 3.08.00",
+                      "product_id": "CSAFPID-0024"
+                    }
+                  }
+                ],
+                "category": "product_name",
+                "name": "MAT-x"
+              }
+            ],
+            "category": "product_family",
+            "name": "MATRIX Series"
+          }
+        ],
+        "category": "vendor",
+        "name": "ABB"
+      }
+    ]
+  },
+  "vulnerabilities": [
+    {
+      "cve": "CVE-2024-6209",
+      "cwe": {
+        "id": "CWE-552",
+        "name": "Files or Directories Accessible to External Parties"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Unauthorized file access in WEB Server in ASPECT <=3.08.01 allows Attacker to access files unauthorized",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0004",
+          "CSAFPID-0010",
+          "CSAFPID-0016",
+          "CSAFPID-0022"
+        ],
+        "known_affected": [
+          "CSAFPID-0003",
+          "CSAFPID-0009",
+          "CSAFPID-0021",
+          "CSAFPID-0015"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-6209",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-6209"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.02 and later.",
+          "product_ids": [
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0021",
+            "CSAFPID-0015"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "HIGH",
+            "baseScore": 10,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9.7,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "UNAVAILABLE",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9.7,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H/E:F/RL:U/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0021",
+            "CSAFPID-0015"
+          ]
+        }
+      ],
+      "title": "CVE-2024-6209"
+    },
+    {
+      "cve": "CVE-2024-6298",
+      "cwe": {
+        "id": "CWE-1287",
+        "name": "Improper Validation of Specified Type of Input"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Improper Input Validation vulnerability in ASPECT allows Remote Code Inclusion. <=3.08.01",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0004",
+          "CSAFPID-0010",
+          "CSAFPID-0016",
+          "CSAFPID-0022"
+        ],
+        "known_affected": [
+          "CSAFPID-0003",
+          "CSAFPID-0009",
+          "CSAFPID-0021",
+          "CSAFPID-0015"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-6298",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-6298"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.02 and later.",
+          "product_ids": [
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0021",
+            "CSAFPID-0015"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "HIGH",
+            "baseScore": 10,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9.4,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "PROOF_OF_CONCEPT",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "UNAVAILABLE",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9.4,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H/E:P/RL:U/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0021",
+            "CSAFPID-0015"
+          ]
+        }
+      ],
+      "title": "CVE-2024-6298"
+    },
+    {
+      "cve": "CVE-2024-6515",
+      "cwe": {
+        "id": "CWE-319",
+        "name": "Cleartext Transmission of Sensitive Information"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Web browser interface may manipulate application username/password in clear text or Base64 encoding in ABB ASPECT providing a higher probability of  unintended creden-tails exposure. <=3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-6515",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-6515"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "NONE",
+            "baseScore": 9.6,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 8.9,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "LOW",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 8.9,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:N/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-6515 "
+    },
+    {
+      "cve": "CVE-2024-6516",
+      "cwe": {
+        "id": "CWE-79",
+        "name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Cross Site Scripting vulnerabilities where found in ABB ASPECT providing a potential for malicious scripts to be injected into a client browser. <=3.08.02.",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-6516",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-6516"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "LOW",
+            "baseScore": 9,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 8.6,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "HIGH",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "HIGH",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 8.6,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:L/E:H/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-6516"
+    },
+    {
+      "cve": "CVE-2024-6784",
+      "cwe": {
+        "id": "CWE-918",
+        "name": "Server-Side Request Forgery (SSRF)"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Server-Side Request Forgery vulnerabilities were found in ASPECT providing a potential for access to unauthorized resources and unintended information disclosure. <=3.08.02.",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-6784",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-6784"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "HIGH",
+            "baseScore": 9.9,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9.3,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "LOW",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9.2,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-6784"
+    },
+    {
+      "cve": "CVE-2024-48843",
+      "cwe": {
+        "id": "CWE-943",
+        "name": "Improper Neutralization of Special Elements in Data Query Logic"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "SQL injection vulnerabilities were found in ASPECT providing a potential for unintended information disclosure. This issue affects ASPECT <=3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-48843",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-48843"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "HIGH",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "NONE",
+            "baseScore": 8.2,
+            "baseSeverity": "HIGH",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 7.6,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "LOW",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 7.6,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:N/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-48843"
+    },
+    {
+      "cve": "CVE-2024-48844",
+      "cwe": {
+        "id": "CWE-770",
+        "name": "Allocation of Resources Without Limits or Throttling"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Denial of Service vulnerabilities where found in ASPECT providing a potiential for device service disruptions. This issue affects ASPECT <=3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-48844",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-48844"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "HIGH",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "HIGH",
+            "baseScore": 7.7,
+            "baseSeverity": "HIGH",
+            "confidentialityImpact": "LOW",
+            "environmentalScore": 7.1,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "LOW",
+            "privilegesRequired": "LOW",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 7.1,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:H/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-48844"
+    },
+    {
+      "cve": "CVE-2024-48845",
+      "cwe": {
+        "id": "CWE-521",
+        "name": "Weak Password Requirements"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Weak Password  Reset Rules vulnerabilities where found in Aspect providing a potiential for the storage of weak passwords that could  facilitate unauthorized admin/application access. This issue affects ASPECT <=3.07.02 ",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0006",
+          "CSAFPID-0018",
+          "CSAFPID-0012",
+          "CSAFPID-0024"
+        ],
+        "known_affected": [
+          "CSAFPID-0005",
+          "CSAFPID-0017",
+          "CSAFPID-0011",
+          "CSAFPID-0023"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-48845",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-48845"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.00 and later",
+          "product_ids": [
+            "CSAFPID-0005",
+            "CSAFPID-0017",
+            "CSAFPID-0011",
+            "CSAFPID-0023"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "LOW",
+            "baseScore": 9.4,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "HIGH",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "UNCHANGED",
+            "temporalScore": 9,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:L/E:H/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0005",
+            "CSAFPID-0017",
+            "CSAFPID-0011",
+            "CSAFPID-0023"
+          ]
+        }
+      ],
+      "title": "CVE-2024-48845"
+    },
+    {
+      "cve": "CVE-2024-48846",
+      "cwe": {
+        "id": "CWE-352",
+        "name": "Cross-Site Request Forgery (CSRF)"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Cross Site Request Forgery vulnerabilities where found in ASPECT providing a potiential for exposing sensitive information or changing system settings. This issue affects ASPECT <=3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-48846",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-48846"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "NONE",
+            "baseScore": 7.1,
+            "baseSeverity": "HIGH",
+            "confidentialityImpact": "LOW",
+            "environmentalScore": 6.6,
+            "environmentalSeverity": "MEDIUM",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "LOW",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "UNCHANGED",
+            "temporalScore": 6.6,
+            "temporalSeverity": "MEDIUM",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:N/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-48846"
+    },
+    {
+      "cve": "CVE-2024-48847",
+      "cwe": {
+        "id": "CWE-328",
+        "name": "Use of Weak Hash"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "MD5 Checksum Bypass vulnerabilities where found in ASPECT exploiting a weakness in the way an application dependency calculates or validates MD5 checksum hashes. This issue affects ASPECT <= 3.08.01.",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0004",
+          "CSAFPID-0010",
+          "CSAFPID-0016",
+          "CSAFPID-0022"
+        ],
+        "known_affected": [
+          "CSAFPID-0003",
+          "CSAFPID-0009",
+          "CSAFPID-0021",
+          "CSAFPID-0015"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-48847",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-48847"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.02 and later.",
+          "product_ids": [
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0021",
+            "CSAFPID-0015"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "NONE",
+            "baseScore": 8.2,
+            "baseSeverity": "HIGH",
+            "confidentialityImpact": "LOW",
+            "environmentalScore": 7.6,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "UNCHANGED",
+            "temporalScore": 7.6,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:N/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0021",
+            "CSAFPID-0015"
+          ]
+        }
+      ],
+      "title": "CVE-2024-48847"
+    },
+    {
+      "cve": "CVE-2024-48839",
+      "cwe": {
+        "id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Improper Input Validation vulnerability in ASPECT allows Remote Code Execution. This issue affects ASPECT <=3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-48839",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-48839"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "LOW",
+            "baseScore": 10,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9.3,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9.3,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:L/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-48839"
+    },
+    {
+      "cve": "CVE-2024-48840",
+      "cwe": {
+        "id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Unauthorized Access vulnerabilities in ASPECT allow Remote Code Execution. This is-sue affects ASPECT <= 3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-48840",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-48840"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "LOW",
+            "baseScore": 10,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9.3,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9.3,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:L/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-48840"
+    },
+    {
+      "cve": "CVE-2024-51541",
+      "cwe": {
+        "id": "CWE-98",
+        "name": "Improper Control of Filename for Include/Require Statement in PHP Program ('PHP Remote File Inclusion')"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Local File Inclusion vulnerabilities in ASPECT allow access to sensitive system infor-mation. This issue affects ASPECT <= 3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-51541",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51541"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "NONE",
+            "baseScore": 8.2,
+            "baseSeverity": "HIGH",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 7.6,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "LOW",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "UNCHANGED",
+            "temporalScore": 7.6,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:N/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51541"
+    },
+    {
+      "cve": "CVE-2024-51542",
+      "cwe": {
+        "id": "CWE-552",
+        "name": "Files or Directories Accessible to External Parties"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Configuration Download vulnerabilities in ASPECT allow access to dependency configu-ration information. This issue affects ASPECT <= 3.08.02.",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-51542",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51542"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "NONE",
+            "baseScore": 8.2,
+            "baseSeverity": "HIGH",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 7.6,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "LOW",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "UNCHANGED",
+            "temporalScore": 7.6,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:N/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51542"
+    },
+    {
+      "cve": "CVE-2024-51543",
+      "cwe": {
+        "id": "CWE-15",
+        "name": "External Control of System or Configuration Setting"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Information Disclosure vulnerabilities in ASPECT allow access to application configura-tion information. This issue affects <= 3.08.02.",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-51543",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51543"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "NONE",
+            "baseScore": 8.2,
+            "baseSeverity": "HIGH",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 7.6,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "LOW",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "UNCHANGED",
+            "temporalScore": 7.6,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:N/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51543"
+    },
+    {
+      "cve": "CVE-2024-51544",
+      "cwe": {
+        "id": "CWE-15",
+        "name": "External Control of System or Configuration Setting"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Service Control vulnerabilities in ASPECT allow access to service restart requests and vm configuration settings. This issue affects <= 3.08.02.",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD- CVE-2024-51544",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51544"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "HIGH",
+            "baseScore": 8.2,
+            "baseSeverity": "HIGH",
+            "confidentialityImpact": "NONE",
+            "environmentalScore": 7.6,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "LOW",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "UNCHANGED",
+            "temporalScore": 7.6,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51544"
+    },
+    {
+      "cve": "CVE-2024-51545",
+      "cwe": {
+        "id": "CWE-522",
+        "name": "Insufficiently Protected Credentials"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Username Enumeration vulnerabilities ASPECT allow access to application level username add, delete, modify and list functions. This issue affects ASPECT <= 3.08.02.",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-51545",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51545"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "HIGH",
+            "baseScore": 10,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "PROOF_OF_CONCEPT",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H/E:P/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51545"
+    },
+    {
+      "cve": "CVE-2024-51546",
+      "cwe": {
+        "id": "CWE-1287",
+        "name": "Improper Validation of Specified Type of Input"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Credentials Disclosure vulnerabilities in ASPECT allow access to on board project back-up bundles. This issue affects ASPECT <= 3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-51546",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51546"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "NONE",
+            "baseScore": 7.5,
+            "baseSeverity": "HIGH",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 7,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "NONE",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "UNCHANGED",
+            "temporalScore": 7,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51546"
+    },
+    {
+      "cve": "CVE-2024-51548",
+      "cwe": {
+        "id": "CWE-434",
+        "name": "Unrestricted Upload of File with Dangerous Type"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Dangerous File Upload vulnerabilities in ASPECT allow upload of malicious scripts. This issue affects ASPECT <= 3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-51548",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51548"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "HIGH",
+            "baseScore": 9.9,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9.3,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "LOW",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9.2,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51548"
+    },
+    {
+      "cve": "CVE-2024-51549",
+      "cwe": {
+        "id": "CWE-36",
+        "name": "Absolute Path Traversal"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Absolute File Traversal  vulnerabilities in ASPECT allows access and modification of un-intended resources. This issue affects ASPECT<= 3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "NVD - CVE-2024-51549",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51549"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "LOW",
+            "baseScore": 10,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9.3,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9.3,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:L/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51549"
+    },
+    {
+      "cve": "CVE-2024-51550",
+      "cwe": {
+        "id": "CWE-1287",
+        "name": "Improper Validation of Specified Type of Input"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Data Validation / Data Sanitization  vulnerabilities in ASPECT Linux allows unvalidated and unsanitized data to be injected in an Aspect device. This issue affects ASPECT <= 3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-51550",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51550"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "LOW",
+            "baseScore": 10,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9.3,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9.3,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:L/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51550"
+    },
+    {
+      "cve": "CVE-2024-51551",
+      "cwe": {
+        "id": "CWE-1392",
+        "name": "Use of Default Credentials"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Default Credentail vulnerabilities in ASPECT on Linux allows access to an Aspect device using publicly available default credentials. This issue affects ASPECT <= through 3.07.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0006",
+          "CSAFPID-0018",
+          "CSAFPID-0012",
+          "CSAFPID-0024"
+        ],
+        "known_affected": [
+          "CSAFPID-0005",
+          "CSAFPID-0017",
+          "CSAFPID-0011",
+          "CSAFPID-0023"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-51551",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51551"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.00 and later.",
+          "product_ids": [
+            "CSAFPID-0005",
+            "CSAFPID-0017",
+            "CSAFPID-0011",
+            "CSAFPID-0023"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "HIGH",
+            "baseScore": 10,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "PROOF_OF_CONCEPT",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H/E:P/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0005",
+            "CSAFPID-0017",
+            "CSAFPID-0011",
+            "CSAFPID-0023"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51551"
+    },
+    {
+      "cve": "CVE-2024-51554",
+      "cwe": {
+        "id": "CWE-193",
+        "name": "Off-by-one Error"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Off By One Error vulnerabilities in ASPECT allow an array out of bounds condition in a log script. This issue affects ASPECT <= 3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-51554",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51554"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "LOW",
+            "baseScore": 9.1,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 8.4,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "LOW",
+            "privilegesRequired": "LOW",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 8.4,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:L/A:L/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51554"
+    },
+    {
+      "cve": "CVE-2024-51555",
+      "cwe": {
+        "id": "CWE-1393",
+        "name": "Use of Default Password"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Default Credentail vulnerabilities in ASPECT allows access to an Aspect device using publicly available default credentials since the system does not require the installer to change default credentials. This issue affects ASPECT<= 3.07.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0006",
+          "CSAFPID-0018",
+          "CSAFPID-0012",
+          "CSAFPID-0024"
+        ],
+        "known_affected": [
+          "CSAFPID-0005",
+          "CSAFPID-0017",
+          "CSAFPID-0011",
+          "CSAFPID-0023"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-51555",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-51555"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.00 and later.",
+          "product_ids": [
+            "CSAFPID-0005",
+            "CSAFPID-0017",
+            "CSAFPID-0011",
+            "CSAFPID-0023"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "HIGH",
+            "baseScore": 10,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "PROOF_OF_CONCEPT",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H/E:P/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0005",
+            "CSAFPID-0017",
+            "CSAFPID-0011",
+            "CSAFPID-0023"
+          ]
+        }
+      ],
+      "title": "CVE-2024-51555"
+    },
+    {
+      "cve": "CVE-2024-11316",
+      "cwe": {
+        "id": "CWE-770",
+        "name": "Allocation of Resources Without Limits or Throttling"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Fileszie Check vulnerabilities in ASPECT allow a malicious user to bypass size limits or overload an Aspect device. This issue affects ASPECT<= 3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-11316",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-11316"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "HIGH",
+            "baseScore": 7.5,
+            "baseSeverity": "HIGH",
+            "confidentialityImpact": "NONE",
+            "environmentalScore": 7,
+            "environmentalSeverity": "HIGH",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "NONE",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "UNCHANGED",
+            "temporalScore": 7,
+            "temporalSeverity": "HIGH",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-11316"
+    },
+    {
+      "cve": "CVE-2024-11317",
+      "cwe": {
+        "id": "CWE-384",
+        "name": "Session Fixation"
+      },
+      "notes": [
+        {
+          "category": "description",
+          "text": "Session Fixation vulnerabilities in ASPECT allow an attacker to fix a users session identi-fier before login providing an opportunity for session takeover on an Aspect device. This issue affects ASPECT <= 3.08.02",
+          "title": "CVE description"
+        }
+      ],
+      "product_status": {
+        "fixed": [
+          "CSAFPID-0002",
+          "CSAFPID-0008",
+          "CSAFPID-0014",
+          "CSAFPID-0020"
+        ],
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0007",
+          "CSAFPID-0013",
+          "CSAFPID-0019"
+        ]
+      },
+      "references": [
+        {
+          "category": "self",
+          "summary": "NVD - CVE-2024-11317",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-11317"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "The vulnerabilities have been resolved in the following product versions:\n3.08.03 and later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "attackComplexity": "LOW",
+            "attackVector": "NETWORK",
+            "availabilityImpact": "NONE",
+            "baseScore": 10,
+            "baseSeverity": "CRITICAL",
+            "confidentialityImpact": "HIGH",
+            "environmentalScore": 9.3,
+            "environmentalSeverity": "CRITICAL",
+            "exploitCodeMaturity": "FUNCTIONAL",
+            "integrityImpact": "HIGH",
+            "privilegesRequired": "NONE",
+            "remediationLevel": "OFFICIAL_FIX",
+            "reportConfidence": "CONFIRMED",
+            "scope": "CHANGED",
+            "temporalScore": 9.3,
+            "temporalSeverity": "CRITICAL",
+            "userInteraction": "NONE",
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:N/E:F/RL:O/RC:C",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0007",
+            "CSAFPID-0013",
+            "CSAFPID-0019"
+          ]
+        }
+      ],
+      "title": "CVE-2024-11317"
+    }
+  ]
+}

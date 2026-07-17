@@ -1,146 +1,124 @@
-"""Module provides functions to look at CSAf file for courpus and for matching."""
+"""Module provides functions to look at CSAf file for text miner."""
 
 import json
 import os
+import cProfile
+from timeit import timeit
 from pathlib import Path
-
+from tqdm import tqdm
 import pandas as pd
-import numpy as np
-from string_helperfunctions import read_json_file, find_file
-from string_helperfunctions import LogHandler
+from utils.log_class import get_logger
 
 # Encoding
 ENCODING = "utf-8"
 
-def create_folders_set(folders:str):
-    allowed_folders = set()
-    for folder in folders.split(','):
-        if '-' in folder:
-            start, end = folder.split('-')
-            for folder_num in range(int(start), int(end) + 1):
-                allowed_folders.add(str(folder_num))
-            allowed_folders.update()
-        else:
-            allowed_folders.add(str(folder))
-        allowed_folders.add("csaf_files")
-        allowed_folders.add("OT")
-        allowed_folders.add("white")
-    return allowed_folders
-
-def is_folder_allowed(file_path: Path, allowed_folders: set[str]) -> bool:
-    """
-    check if parent folder is allowed
-    """
-    last_folder = file_path.parent.name
-    return last_folder in allowed_folders
+# CSAF Keys
+PRODUCT_TREE = "product_tree"
+FULL_PRODUCT_NAMES = "full_product_names"
+BRANCHES = "branches"
 
 
-# def process_json_files_in_directory(directory_path):
-def get_csaf_sources(path_directory: str, allowed_folders: set[str] = None):
-    '''Get paths to json source files from a directory and check if it is a CSAF one.
+def get_json_list(root: Path = Path.cwd().joinpath("resources"),
+                  folder_names: set[str] | None = None) -> list[Path]:
+    """Get paths from json files from a directory -r
 
     Parameter:
-        path_directory:str  path to the directory where the CSAf json files are.
+        path_directory: Path of starting directory
+                        for collecting paths to json files
+        allowed_folders: set[str] sub folders where to look
+        (used to make selection if needed e.g.for tests)
     
+    Awareness:
+        Be aware that the full path is stored and any json file within
+        the root path will be processed but also deleted later on.
+
     Return:
-        pd.Dataframe with all CSAF documents found with columns path and file name
-    '''
-    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogHandler(formating)
-    file_list = []
-    for source in [path_directory]:
-        source = os.path.normpath(source)
-        for root, _, files in os.walk(source):
-            for file in files:
-                if file.endswith(".json") is False:
-                    log.logger.debug('Filepath %s is not a json file. File is excluded.', file)
-                    continue
+        list[Path] of json files
+    """
+    if folder_names is None:
+        return list(root.rglob("*.json"))
 
-                file_path = os.path.join(root, file)
-                if allowed_folders is not None and not is_folder_allowed(Path(file_path), allowed_folders):
-                    continue
+    json_files = []
 
+    for dirpath, dirnames, _f in os.walk(root):
+        if Path(dirpath).name in folder_names:
+            for subdir, _dir, files in os.walk(dirpath):
+                for file in files:
+                    if file.endswith(".json"):
+                        json_files.append(Path(subdir) / file)
+            # Don't descend into this subtree again
+            dirnames.clear()
+    return json_files
+
+
+def get_csaf_sources(filelist: list[Path]) -> pd.DataFrame:
+    """Check if json files is a CSAF one.
+
+    Parameter:
+        list[Path] filelist: List of Path leading to
+        potential CSAF files
+
+    Return:
+        list with all CSAF documents paths
+    """
+    log = get_logger(__name__, __file__)
+    csaf_files = []
+    
+    required_entries = {"document", PRODUCT_TREE, "vulnerabilities"}
+    
+    for file_path in filelist:
+        try:
+            if file_path.stat().st_size == 0:
+                log.debug(
+                    "Filepath {} leads to an empty JSON file. \
+                    File is excluded.",
+                    file_path,
+                )
+                continue
+                
+            with open(file_path, "r", encoding=ENCODING) as filename:
                 try:
-                    with open(file_path, 'r', encoding=ENCODING) as filename:
-                        #os.path.getsize(fullpathhere) > 0
-                        if os.stat(file_path).st_size == 0:
-                            log.logger.debug('Filepath %s lead to a emtpy json file. '
-                                             'File is excluded.', file_path)
-                            continue
-                        try:
-                            dummy = json.load(filename)
-                        except json.decoder.JSONDecodeError as e:
-                            log.logger.error('Filepath %s lead to Error: %s. File is excluded. '
-                                             ' Check it out.', file_path, e)
-                        # Check if it is a CSAF file
-                        try:
-                            dummy1 = dummy.get('document')
-                            dummy2 = dummy.get('product_tree')
-                            dummy3 = dummy.get('vulnerabilities')
-                            if None in (dummy1, dummy2, dummy3):
-                                log.logger.info('File with path %s fits not the CSAF standard. '
-                                                'File is excluded.', file_path)
-                            else:
-                                file_list.append([os.path.join(root, file), file])
-                        except (KeyError, json.decoder.JSONDecodeError) as e:
-                            log.logger.error('Filepath %s lead to a non CSAF file with Error: %s. '
-                                             'File is excluded', file_path, e)
-                except FileNotFoundError as e:
-                    raise FileNotFoundError("Could not find the file at: " + file_path) from e
-    return pd.DataFrame(file_list, columns=['path', 'file'])
+                    data = json.load(filename)
+                except json.decoder.JSONDecodeError as e:
+                    log.opt(exception=True).warning(
+                        "Loading {} lead to Error: {}. File is excluded. "
+                        " Check it out.", file_path, e,
+                    )
+                    continue
 
-def merge_dataframes(df1, df2):
-    return pd.concat([df1, df2], axis=0, ignore_index=True, sort=False)
+            if not isinstance(data, dict):
+                log.info(
+                    "File {} does not contain a JSON object. \
+                        File is excluded.",
+                    file_path,
+                )
+                continue
 
-def read_csaf_file(file_path):
-    '''Read json file of a CSAF document.'''
-    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogHandler(formating)
-    try:
-        with open(file_path, 'r', encoding=ENCODING) as filename:
-            #os.path.getsize(fullpathhere) > 0
-            if os.stat(file_path).st_size == 0:
-                log.logger.warning('Filepath %s lead to a emtpy json file.'
-                                   ' File isexcluded.', file_path)
-            try:
-                dummy = json.load(filename)
-            except json.decoder.JSONDecodeError as e:
-                log.logger.warning('Filepath %s lead to Error: %s. File is excluded. '
-                                   'Check it out.', file_path, e)
-            except FileNotFoundError:
-                log.logger.warning('Could not find the file at: %s', file_path)
-            # Check if it is a CSAF file
-            try:
-                dummy1 = dummy.get('document')
-                dummy2 = dummy.get('product_tree')
-                dummy3 = dummy.get('vulnerabilities')
-                if None in (dummy1, dummy2, dummy3):
-                    log.logger.info('File with path %s fits not the CSAF standard.'
-                                    , file_path)
-                    return True
-                else:
-                    return dummy
-            except (KeyError, json.decoder.JSONDecodeError) as e:
-                log.logger.info('Filepath %s lead to a non CSAF file with Error: %s.',
-                                file_path, e)
-    except FileNotFoundError as e:
-        log.logger.warning("Could not find the file at: %s", file_path)
+            if not required_entries.issubset(data.keys()):
+                missing = required_entries - data.keys()
+                log.info(
+                    "File {} is not a valid CSAF document. Missing keys: {}",
+                    file_path,
+                    ", ".join(sorted(missing)),
+                )
+                continue
+
+            csaf_files.append(file_path)
+        except OSError as e:
+            log.error("Could not read {}: {]}", file_path, e)
+    return csaf_files
 
 
-def get_csaf_document_id(json_data):
-    '''Extract CSAF document tracking id.'''
-    return json_data.get('document', {}).get('tracking', {}).get('id', '')
-
-
-def flatten_tree_data(json_data, input_type="product_tree"):
-    '''Separate in two different structes of CSAF files.'''
+def flatten_tree_data(json_data: dict, input_type: str = PRODUCT_TREE):
+    """Separate in two different structures of CSAF files."""
     tree = json_data.get(input_type, {})
     # if full product names instead of branches
-    if 'full_product_names' in tree:
-        df_json = pd.DataFrame(tree['full_product_names']
-                               ).rename(columns={'name': 'full_product_names'})
+    if FULL_PRODUCT_NAMES in tree:
+        df_json = pd.DataFrame(tree[FULL_PRODUCT_NAMES]).rename(
+            columns={"name": FULL_PRODUCT_NAMES}
+        )
         return df_json
-    tree_data = tree.get('branches', [])
+    tree_data = tree.get(BRANCHES, [])
     flattened_data = []
     for item in tree_data:
         flattened_data.extend(flatten_branch(item, {}))
@@ -148,74 +126,105 @@ def flatten_tree_data(json_data, input_type="product_tree"):
 
 
 def flatten_branch(branch, parent_attributes):
-    '''Read in branches of json file.'''
+    """Read in branches of json file."""
     attributes = parent_attributes.copy()
-    attributes.update({
-        branch.get('category', ''): branch.get('name', '')
-    })
-    if 'branches' in branch:
+    attributes.update({branch.get("category", ""): branch.get("name", "")})
+    if BRANCHES in branch:
         flat_branches = []
-        for sub_branch in branch['branches']:
+        for sub_branch in branch[BRANCHES]:
             flat_branches.extend(flatten_branch(sub_branch, attributes))
         return flat_branches
     else:
         # last leaf of branches
-        if 'product' in branch:
-            attributes.update({
-                'full_product_name_branch': branch['product'].get('name', ''),
-                'product_id': branch['product'].get('product_id', '')
-            })
+        if "product" in branch:
+            attributes.update(
+                {
+                    "full_product_name_branch":
+                        branch["product"].get("name", ""),
+                    "product_id":
+                        branch["product"].get("product_id", ""),
+                }
+            )
         return [attributes]
 
 
-def process_csaf_sources(csaf_sources: pd.DataFrame):
-    '''Process the csaf json list'''
-    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogHandler(formating)
-    combined_df = pd.DataFrame()
-    predefined_columns = read_json_file(find_file('config.json')
-                                        )['df_columns']['predefined_columns']
-    fac = np.round(len(csaf_sources) / 30, 0) + 1
-    for i in range(len(csaf_sources)):
-        if i > 0:
-            if i % fac == 0:
-                print(f"{np.round(i / len(csaf_sources) * 100, 2)}% eingelesen")
-        file_path = csaf_sources.path.loc[i]
-        try:
-            json_data = read_csaf_file(file_path)
-            if json_data is None:
-                log.logger.info("Filepath contain no CSAF data. %s", file_path)
-                continue
-            df_flattened = flatten_tree_data(json_data, 'product_tree')
-            df_flattened['path'] = file_path
-            # Lege fehlende Spalten an
-            df_flattened['data_source'] = get_url_from_csaf(json_data, file_path)
-            df_flattened['csaf_document_id'] = get_csaf_document_id(json_data)
-            for fix_column in predefined_columns:
-                if fix_column not in df_flattened.columns:
-                    df_flattened[fix_column] = None
-            if set(df_flattened.columns).issubset(set(predefined_columns)) is False:
-                log.logger.error("There are undefined columns in %s", file_path)
-            # df_flattened = df_flattened[predefined_columns]
-            combined_df = pd.concat([combined_df, df_flattened], ignore_index=True)
-        except json.JSONDecodeError as e:
-            log.logger.warning("Fehler beim Parsen der Datei %s %s", file_path, e)
-    return combined_df
+def nested_get(d, *keys, default=None):
+    """Get dictionary function to reduce code replication."""
+    for key in keys:
+        if not isinstance(d, dict):
+            return default
+        d = d.get(key)
+    return d if d is not None else default
 
 
-def get_url_from_csaf(d, path):
-    '''Extract url from CSAf file.'''
-    formating = "[%(asctime)s - %(levelname)s - process_csaf_files  %(funcName)s] %(message)s"
-    log = LogHandler(formating)
-    try:
-        for ref in d['document']['references']:
-            if ref.get('url', '').endswith('.json'):
-                return ref['url']
-    except KeyError as e:
-        log.logger.info("%s: No url for json document provided in %s", e, path)
-        return 'missing'
+def process_csaf_sources(csaf_sources: list[Path]) -> pd.DataFrame:
+    """Process the csaf json list
+
+    Parameter:
+        csaf_sources with full path to file
+
+    Limitations:
+        it is assumed, that the files are accurate csaf files
+        the previous functions in this module check only the
+        top level structure
+    """
+    log = get_logger(__name__, __file__)
+
+    dfs = []
+    for file_path in tqdm(csaf_sources):
+        with open(file_path, 'r', encoding=ENCODING) as file:
+            json_data = json.load(file)
+        references = nested_get(json_data,
+                                "document", "references", default="")
+        df_flattened = flatten_tree_data(json_data, PRODUCT_TREE)
+        df_flattened = df_flattened.assign(
+            path=file_path,
+            data_source=next(ref["url"] for ref in references if
+                             ref.get("url", "").endswith(".json")),
+            csaf_document_id=nested_get(json_data,
+                                        "document",
+                                        "tracking",
+                                        "id",
+                                        default="")
+        )
+
+        dfs.append(df_flattened)
+    if not dfs:
+        log.error("All provided CSAF files are not applicable or empty")
+        return pd.DataFrame()
+    else:
+        df = pd.concat(dfs, ignore_index=True)
+        return csaf_checks(df.drop(columns=["path"]))
+
+
+def csaf_checks(df: pd.DataFrame) -> pd.DataFrame:
+    """"Check for missing columns that are required later on."""
+
+    log = get_logger(__name__, __file__)
+    
+    path_csaf_columns = Path.cwd().joinpath("utils", "csaf_columns.json")
+    with open(path_csaf_columns, 'r', encoding=ENCODING) as file:
+        pre_col = json.load(file)["df_columns"]["predefined_columns"]
+        
+    # Set None for missing predefined columns
+    missing = set(pre_col) - set(df.columns)
+    for col in missing:
+        df[col] = None
+    # Check for unexpected columns
+    unexpected = set(df.columns) - set(pre_col)
+    if unexpected:
+        log.error("Unexpected columns: {}", unexpected)
+    return df
+
+def check_resources(fkt: str = "find_json_files(Path(os.getcwd()))"):
+    """To optimize the implementation: cProfile to identify bottlenecks."""
+    cProfile.run(fkt)
 
 
 if __name__ == "__main__":
-    print('Call process_csaf_sources(get_csaf_sources(<PATH_directory>))')
-    df = process_csaf_sources(get_csaf_sources(os.path.join(os.getcwd(), 'test')))
+    print("Call process_csaf_sources(get_csaf_sources(get_json_list(<root_path>)))")
+    # Test
+    
+    process_csaf_sources(get_csaf_sources(
+        get_json_list(Path.cwd().joinpath("tests",
+                                          "test_files"))))
