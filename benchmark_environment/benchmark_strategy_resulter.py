@@ -22,7 +22,10 @@ import matplotlib.ticker as mtick
 def get_data() -> pd.DataFrame:
     """Load csv files and get ride of first empty column."""
     dfs = []
-
+    files = Path("results").glob("*.csv")
+    if not any(files):
+        print('No csv files under results/ found')
+        return pd.DataFrame(dfs)
     for file in Path("results").glob("*.csv"):
         method, threshold = re.search(
             r".*\d{4}_\d{4}_(.*?)_([0-9.]+)\.csv$",
@@ -66,7 +69,7 @@ def plot_curves(ax, plot_df, value):
 def format_axis(ax, title, ylabel):
     ax.set_title(title)
     ax.set_xlabel("Threshold")
-    ax.set_ylabel(ylabel)
+    ax.set_ylabel(ylabel+" (normalized)")
     ax.set_yticks(np.arange(0, 1.01, 0.25))
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1))
     ax.grid(alpha=0.3)
@@ -116,19 +119,23 @@ def plot2x2_data(df: pd.DataFrame, case: str = "passed"):
     plot_group(axes[3], df, "Total", case, normalizer)
 
     handles, labels = axes[3].get_legend_handles_labels()
+    # fit labels 
+    labels = [label.replace(",", "\n") for label in labels]
+
     fig.legend(
         handles,
         labels,
         title="Method",
         loc="center right",
-        bbox_to_anchor=(1.02, 0.5),
+        bbox_to_anchor=(0.95, 0.5),
         ncol=1,
         fontsize="large",
         frameon=True,
     )
 
-    plt.tight_layout(rect=[0, 0, 0.85, 1])
-    plt.show()
+    plt.tight_layout(rect=[0, 0, 0.75, 0.95])
+    plt.savefig(f"plot_{case}.png")
+    return fig
 
 
 def ranking(df):
@@ -185,6 +192,10 @@ def ranking(df):
 
 if __name__ == "__main__":
     df_raw = get_data()
-    plot2x2_data(df_raw, "passed")
-    plot2x2_data(df_raw, "time average (ms)")
-    ranking(df_raw)
+    if df_raw.empty:
+        print("Skip program because no data to process.")
+    else:
+        plot2x2_data(df_raw, "passed")
+        plot2x2_data(df_raw, "time average (ms)")
+        ranking(df_raw)
+        plt.show()
