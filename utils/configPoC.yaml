@@ -1,17 +1,23 @@
 ---
 logger:
   default:
-    basics:
-      log_file: logs/default.log
-      log_max_file_size: 10 MB
-      log_retention: 5
-      log_level: INFO
+    sink: logs/default.log
+    rotation: 10 MB
+    retention: 5
+    backtrace: False
+    diagnose: False
+    severity: 25  # up to Success log level
   large:
-    basics:
-      log_file: logs/default_large.log
-      log_max_file_size: 20 MB
-      log_retention: 5
-      log_level: INFO 
-
-
-
+    sink: logs/default_large.log
+    rotation: 20 MB
+    retention: 5
+    level: INFO 
+    backtrace: False
+    diagnose: False
+  warning:
+    sink: logs/warning.log
+    rotation: 20 MB
+    retention: 5
+    level: WARNING
+    backtrace: True
+    diagnose: False 
