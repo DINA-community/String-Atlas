@@ -102,4 +102,22 @@ The benchmark takes each product and generates deviations from that string accor
 
 ## Evaluation
 
-Running the scripts or looking at the runs given in the jupyter file, the current success rate is rather low. A automated evaluation will be provided.
+### Scripted
+
+Running the script and using `benchmark_strategy_resulter.py` provides the two following pictures
+
+Benchmark strategy results - Passed tests by threshold and strategy order
+![passed](benchmark_selection-passed.svg 'Passed tests of each test case')
+
+Benchmark strategy results - Runtime by threshold and strategy order
+![runtime](benchmark_selection-runtime.svg 'Runtime of each test case')
+
+The script also returns the threshold and strategy combination with the highest number of passed cases.
+
+In the current test run, the pass ratios for most strategy orders are identical and are represented by the green curve. The threshold has an impact on the pass ratio, with the highest performance achieved at a threshold of 0.8.
+
+Regarding runtime, it is expected that the vector strategy requires significantly more computational effort compared to using only the fuzzy or exact matching strategies.
+
+### Manuel
+
+This automated test will be complemented by manual reviews of the failed test cases. The goal is not to achieve a 100% pass rate, but rather to understand the reasons behind the failures and identify whether the affected cases can be improved.
