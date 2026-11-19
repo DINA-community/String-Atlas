@@ -1,0 +1,115 @@
+{
+  "global": {
+    "csaf_files": "/Users/htb/OneDrive/PycharmProjects/DDDC-Netbox-plugin/CSAF/csaf_files"
+  },
+  "fields": {
+    "ipaddress": {
+      "scoring": [
+        {
+          "matcher": "ip",
+          "params": {}
+        }
+      ],
+      "score_rating": "average"
+    },
+    "oui": {
+      "scoring": [
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[:]){2}([0-9A-Fa-f]{2}){1}"
+          },
+          "score_weight": 1.0
+        },
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[\\-\\.]?){3}"
+          },
+          "score_weight": 0.8
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "mac": {
+      "scoring": [
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[:]?){5}([0-9A-Fa-f]{2}){1}"
+          },
+          "score_weight": 1.0
+        },
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[\\-\\.]?){6}"
+          },
+          "score_weight": 0.8
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "port": {
+      "scoring": [
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[:]?){5}([0-9A-Fa-f]{2}){1}"
+          },
+          "score_weight": 1.0
+        },
+        {
+          "matcher": "regex",
+          "params": {
+            "pattern": "([0-9A-Fa-f]{2}[\\-\\.]?){6}"
+          },
+          "score_weight": 0.8
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "vendor": {
+      "scoring": [
+        {
+          "matcher": "dict",
+          "params": {
+            "source": "csaf",
+            "attribute": "vendor",
+            "threshold": 0.4
+          },
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "product_name": {
+      "scoring": [
+        {
+          "matcher": "dict",
+          "params": {
+            "source": "csaf",
+            "attribute": "product_name",
+            "threshold": 0.7
+          },
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "maximum"
+    },
+    "product_family": {
+      "scoring": [
+        {
+          "matcher": "dict",
+          "params": {
+            "source": "csaf",
+            "attribute": "product_family",
+            "threshold": 0.7
+          },
+          "score_weight": 1.0
+        }
+      ],
+      "score_rating": "maximum"
+    }
+  }
+}

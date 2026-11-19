@@ -1,0 +1,29 @@
+[project]
+name = "String-Atlas"
+version = "0.2.0"
+description = "Review of String-Miner and revise of "
+requires-python = ">=3.13"
+dependencies = [
+  "defusedxml",
+  "Flask",
+  "ipykernel",
+  "logging",
+  "numpy>=2.3.5",
+  "openpyxl",
+  "pandas>=2.2",
+  "pyspellchecker==0.7.3",
+  "rapidfuzz",
+  "redis>=7.4",
+  "redisearch",
+  "requests",
+  "surroundingkeys",
+]
+
+[project.optional-dependencies]
+vector = [
+  "qdrant-client==1.17.1",
+  "sentence-transformers",
+]
+
+[tool.uv]
+package = false

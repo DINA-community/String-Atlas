@@ -1,0 +1,33 @@
+Category,Subcategory,SIMATIC S7-1500,SIPROTEC 5,SCALANCE XR324-4M,RUGGEDCOM RS900,MELSEC iQ-F,Productivity 1000,DEEBOT X5,NextSeq 550,SAGE 3030
+Product,,SIMATIC S7-1500,SIPROTEC 5,SCALANCE XR324-4M,RUGGEDCOM RS900,MELSEC iQ-F,Productivity 1000,DEEBOT X5,NextSeq 550,SAGE 3030
+Vendor,,Siemens,Siemens,Siemens,Siemens,Mitsubishi Electric,AutomationDirect,ECOVACS,Illumina,Schneider Electric
+Type,,Product,Product,Product,Product,Product,Product,Product,Product,Product
+Ground Truth,,"contains(""SIMATIC S7-1500"");","contains(""SIPROTEC 5"");","contains(""SCALANCE XR324-4M"");","contains(""RUGGEDCOM RS900"");","contains(""MELSEC iQ-F"");","contains(""Productivity 1000"");","contains(""DEEBOT X5"");","contains(""NextSeq 550"");","contains(""SAGE 3030"");"
+Test - Lexical errors,Lexical errors - wrong letter typing,,,,,,,,,
+Test - Lexical errors,Lexical errors - lower and uppercase,,,,,,,,,
+Test - Lexical errors,Lexical errors - insertion redundant characters,,,,,,,,,
+Test - Lexical errors,Lexical errors - insertion additional characters,,,,,,,,,
+Test - Lexical errors,Lexical errors - deletion characters,,,,,,,,,
+Test - Lexical errors,Lexical errors - transposed letters,,,,,,,,,
+Test - Lexical errors,Lexical errors - missing token,,,,,,,,,
+Test - Lexical errors,Lexical errors - number alpha mix,,,,,,,,,
+Test - Different Spelling,different spelling - special chars - whitespace replacement,,,,,,,,,
+Test - Different Spelling,different spelling - special chars - removed,,,,,,,,,
+Test - Different Spelling,different spelling - whitespaces - removed between token,,,,,,,,,
+Test - Different Spelling,different spelling - whitespaces - replacement with special char,,,,,,,,,
+Test - Different Spelling,different spelling - vendor,,,,,,,,,
+Test - Different Spelling,different spelling - lower and uppercase,,,,,,,,,
+Test - Different Spelling,different spelling - synonyms,,,,,,,,,
+Test - Different Spelling,different spelling - abbreviations,,,,,,,,,
+Test - Different Spelling,different spelling - wrong semantic,,,,,,,,,
+Test - Format errors,format errors - underscore,,,,,,,,,
+Test - Format errors,format errors - multiple products in row,,,,,,,,,
+Test - Format errors,format error - transposed token,,,,,,,,,
+Test - Format errors,format error - whitespaces - special char mixed,,,,,,,,,
+Test - Different Spelling,different spelling - acronym,,,,,,,,,
+Test - Different Spelling,different spelling - full form for acronym,,,,,,,,,
+Test - Placeholder,placeholder - content word,,,,,,,,,
+Test - Placeholder,placeholder - functional,,,,,,,,,
+Test - Placeholder,placeholder - two content words,,,,,,,,,
+Test - Placeholder,placeholder - long content with unique,,,,,,,,,
+Test - Placeholder,placeholder - long content,,,,,,,,,

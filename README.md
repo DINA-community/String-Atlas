@@ -1,82 +1,52 @@
 # String-Atlas
 
-> For normalisation of input data the following files are provided. They are used for the netbox plugin [DDDC](https://github.com/DINA-community/DDDC-Netbox-plugin) and for the intended CSAF Handler.
->
-> :exclamation: This is a developing state at the moment and not ready to use.
+In general String-Atlas is a collection of modules used for matching CSAF documents with assets. This collection was designed for the DINA-community project, surrounding Malcolm, DDDC and CSAF-Handler.
 
-## Overview
+> :exclamation: This is a developing state at the moment and not ready to use. 
 
-In general String-Atlas is a collection of modules used for matching CSAF documents with assets of a asset data base. This collection was designed for the DINA-community project, surrounding Malcolm, DDDC and CSAF-Handler.
+## Development
 
-![Flowchart_CSAFMatcher][fig_flow_new]
+At the moment, the whole framework is under reconstruction aiming to provide better methods to harmonized asset data. This allows a fast mapping with CSAF documents as well as ensure that the
+asset data on an operator side is harmonized in that way that different data models and descriptions have no negativ effect on mapping assets with CSAF documents-
 
-At the beginning, both datasets have to be adjusted for comparison. Therefore, the matching information (attributes) have to be mapped to the attributes used for the Netbox plugin [DDDC](https://github.com/DINA-community/DDDC-Netbox-plugin). This mapping is done in `process_csaf_files.py` as module *Flatten CSAF Data into Pandas DataFrame* and in the module `Database Mapping` \(not implemented yet\)
+The development state can be tested under the benchmark_environment following the [Installation Guide](benchmark_environment/Readme.md).
 
-The module *DataCleaning/Standardisation* adjust the input data of both datasets for comparison. It shall be used in the Netbox plugin DDDC as well.
+The general idea is to extract information from any database and map it to a basic classification, as shown below. Based on this initial mapping, the matching routine of the matching agent can then be used to identify compatible assets using more specific attributes, such as the firmware version.  
 
-The matching process shall satisfy the CSAF Standard. Therefore, the functions in string_matching.py must be extended with regard to matching priorities \(Modi\) 1 and 3 in [Issue 593](https://github.com/oasis-tcs/csaf/issues/593) and matching priority 2 \(Modi-2\) must be adapted with regard to the data fields to be compared.
+![Manufacturer](https://img.shields.io/badge/Manufacturer-green?style=plastic)
+![Device Family](https://img.shields.io/badge/Device_Family-darkgreen?style=plastic)
+![Model](https://img.shields.io/badge/Model-green?style=plastic)
+![Model Series](https://img.shields.io/badge/Model_Series-grey?style=plastic)
+![Further Specifications](https://img.shields.io/badge/Model_Specification-red?style=plastic)
 
-The *DataCleaning/Standardisation* adjust the input data of both datasets for comparison.
+The color is intended to display the matching reason. To keep it simple, only a few
+reasons are provided such as
 
-There is no modules yet, that uses the scripts together. This will take place in a new project while revising the modules step by step separately.
+| Confidence                                                                    | Description                                                       |
+| ---                                                                           | ---                                                               |
+| ![Exact](https://img.shields.io/badge/Exact-darkgreen?style=plastic)          | Exact match                                                       |
+| ![Indirect](https://img.shields.io/badge/Indirect-green?style=plastic)        | Indirect match e.g. manufacturer is Siemens for model SCALANCE    |
+| ![Inconclusive](https://img.shields.io/badge/Inconclusive-grey?style=plastic) | No match with sufficient confidence (e.g. Model Specifications)   |
+| ![No Match](https://img.shields.io/badge/No_Match-red?style=plastic)          | Confidence is below a certain value                               |
 
-|module  | status |
-|- |- |
-|process_csaf_files     | deprecated |
-|string_checker         | major revision needed [#2](https://github.com/DINA-community/String-Atlas/issues/)|
-|string_helperfunctions | stable |
-|string_miner           | major revision needed |
-|string_normalization   | [issue #3 #4 #5](https://github.com/DINA-community/String-Atlas/issues/) |
-|string_synonym         | stable |
+Also, this approach can be used in the string_miner and string_checker. Please note, that the classification is not fixed. Especially, the sufficient confidence has to be determine.
 
-### process_csaf_files.py
+## Status of Revision
 
-In the last line the path to directory, where the CSAF file(s) are, have to be added.
+The following scripts are used in other repositories and will be replaced when the revision takes place.
 
- ```text
-df = process_csaf_sources(get_csaf_sources(<path to directory>))
- ```
-
- **Note**: the function `find_file` of the helperfunctions.py will search at the folder and the upper folder *data* amd *String-Sysiphos*.
-
-### string_checker.py
-
-  no edition information provided at the moment
-
-### string_helperfunctions.py
-  
-  The LogStyle class is used for all other functions where logging takes place.
-
-  Chances in this file have impact on several other files. Be aware of the dependencies.
-
-### string_miner.py
-
-  Extract attribute information out of a string.
-
-### string_normalization.py
-
-- delete prefix and suffix
-- use synonyms and spellchecker
-
-### string_synonym.py
-
-  provides a class for synonym checks
-
-## Setup
-
-The modules have been tested with Ubuntu 22.04.
-
-### Prerequisites
-
-There are some packages that have to be installed by the user, in order to use some features in the mapping process.
-
- ```bash
-  pip install levenshtein fuzzywuzzy collections inspect pprint
- ```
+|Module                 | Status                                                                                | Action                                                                |
+|---                    |---                                                                                    | ---                                                                   |
+|process_csaf_files     | Deprecated                                                                            | Replace with a more reliable and higher-performance implementation.   |
+|string_checker         | Major revision required [#2](https://github.com/DINA-community/String-Atlas/issues/)  | Await completion of the normalization module before refactoring.      |
+|string_helperfunctions | Stable                                                                                | Refactor and align with the normalization framework.                  |
+|string_miner           | Major revision required                                                               | Defer to the backlog for future revision.                             |
+|string_normalization   | [issue #3 #4 #5](https://github.com/DINA-community/String-Atlas/issues/)              | In active development                                                 |
+|string_synonym         | Stable                                                                                | Update to integrate the normalization framework.                      |
 
 ## Contribution
 
-The `string_normalization.py` and `process_csaf_files.py` were set up by Benjamin Wensky.
+The initial version of the string_normalizaton.py, process_csaf_files.py and string_matching were set up by Benjamin Wensky.
 
 ## Dependencies
 
@@ -86,6 +56,4 @@ Some functions will need specific data for string processing. Those can be found
 
 The software was developed on behalf of the [BSI](https://www.bsi.bund.de) \(Federal Office for Information Security\)
 
-Copyright &copy; 2024-2025 by DINA-Community Apache 2.0 License. [See License](/LICENSE)
-
-[fig_flow_new]: ./images/Cleansing.svg
+Copyright &copy; 2024-2026 by DINA-Community Apache 2.0 License. [See License](/LICENSE)

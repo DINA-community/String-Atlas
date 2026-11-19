@@ -1,0 +1,22 @@
+{
+  "vendor_csaf_normalized": "Siemens",
+  "brand_csaf_normalized": "Scalance",
+  "brands_similar_learned": []
+}
+er soll alle keys holen wo das obere struktur drinnen ist.
+
+dann hat er schonmal alle brands
+
+dann soll er beim unteren struktur
+
+Excel erstellen, die alle je so eines dokumentes eine ziele erstellt:
+
+Spalten
+
+|Hersteller|Brand|Produktserie
+|Siemens|SCALANCE|W748-1
+
+
+{"vendor": "Siemens", "product_type": "SCALANCE W748-1 RJ45 ( 6GK5748-1FC00-0AB0 )", "meta_info": {"group": [false, true, false, false, true, false], "annotations": [[], [], [], [], ["unique"], []], "whole_tokens": ["SCALANCE", "W748-1", "RJ45", "(", "6GK5748-1FC00-0AB0", ")"], "group_ids": [0, 10, null, null, 1, null], "group_len": [null, 17, null, null, 28, null], "group_regexes": [null, ["W", "\\d\\{{4}}", "-", "\\d\\{{1}}", "IA"], null, null, ["\\d\\{{1}}", "GK", "\\d\\{{4}}", "-", "\\d\\{{1}}", "^[A-Za-z]+$", "\\d\\{{2}}", "-", "\\d\\{{1}}", "^[A-Za-z]+$", "\\d\\{{1}}"], null], "vendor": "Siemens", "types": ["brand", "series_and_sub_series", "feature_series", "parentheses_start", "parentheses_feature_group", "parentheses_end"]}}
+
+

@@ -1,3 +1,9 @@
 [submodule "string-sysiphos"]
 	path = string-sysiphos
 	url = https://github.com/DINA-community/String-Sysiphos
+[submodule "dev/isduba"]
+	path = dev/isduba
+	url = https://github.com/ISDuBA/ISDuBA.git
+[submodule "docker-run-api/isduba"]
+	path = docker-run-api/isduba
+	url = https://github.com/ISDuBA/ISDuBA

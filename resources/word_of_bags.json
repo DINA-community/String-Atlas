@@ -1,0 +1,17 @@
+{
+  "mac": ["MACADDRESS", "MAC", "MACAddress", "Media Access Control"],
+  "oui": ["OUI", "Organizationally Unique Identifier"],
+  "ip_address": ["Internet Protocol" ,"IP", "IPAddress","IPv4", "IP v4", "IP v6", "IPv6"],
+  "vendor": ["Vendor", "Manufacturer"],
+  "source_port" : ["Source Port", "sport", "sourceport"],
+  "source" : ["source", "quelle"],
+  "destination_port" : ["Destination Port", "dport", "destinationport", "target"],
+  "product_family" : ["product family","brand", "Marke"],
+  "device_family" : ["device family"],
+  "product_name" : ["device name", "product name","product_name", "device_name"],
+  "role" : ["role", "Rolle", "device role", "devicerole", "Geräterolle"],
+  "description" : ["description", "Beschreibung", "notes", "desc"],
+  "role_values": ["Active Directory", "AD", "EWS", "Engineering Work Station", "Work Station",
+    "Firewall", "HMI Field", "IED", "HMI", "Human Machine Interface",
+    "Actuator", "MES", "Router", "RTU", "SCADA", "Client", "Server", "Switch", "PLC", "Aktor", "Sensor"]
+}

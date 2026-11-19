@@ -1,0 +1,27 @@
+{
+    "df_columns":{
+        "predefined_columns": [
+            "data_source",
+            "vendor",
+            "vendor_modified",
+            "product_family",
+            "product_family_modified",
+            "product_name",
+            "product_name_modified",
+            "function_keywords_found",
+            "product_version_range",
+            "product_version_range_modified",
+            "product_version",
+            "product_version_modified",
+            "full_product_names",
+            "full_product_name_branch",
+            "product_id",
+            "architecture",
+            "legacy",
+            "patch_level",
+            "service_pack",
+            "specification",
+            "csaf_document_id"
+        ]
+    }
+}
