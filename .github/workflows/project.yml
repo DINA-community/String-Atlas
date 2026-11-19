@@ -1,0 +1,13 @@
+name: Add to project
+
+on:
+  issues: { types: [opened, reopened] }
+  pull_request_target: { types: [opened, reopened] }
+
+permissions: {}
+
+jobs:
+  add:
+    uses: DINA-community/.github/.github/workflows/add-to-project.yml@main
+    with: { project: "5" } # org project number
+    secrets: inherit 
